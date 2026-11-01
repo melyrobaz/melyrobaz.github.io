@@ -1,10 +1,10 @@
 /*
- * FloralPlayer — chrome partagé, liens de configuration, copie du code
+ * FloralPlayer — en-tête, pied de page, liens de configuration, copie du code
  * et coloration syntaxique locale.
  *
- * Choix : le header et le footer sont construits ici, à partir d'une seule
- * source de données. Pas de fetch(), donc pas de problème CORS, et le site
- * fonctionne aussi en file:// en plus de GitHub Pages.
+ * Choix : l'en-tête et le pied de page sont construits ici, à partir d'une
+ * seule source de données. Pas de fetch(), donc pas de problème CORS, et le
+ * site fonctionne aussi en file:// en plus de GitHub Pages.
  */
 (function () {
   "use strict";
@@ -40,7 +40,7 @@
   function navLink(key, label, href) {
     var current = currentPage === key;
     return (
-      '<a class="menubar__link' +
+      '<a class="site-nav__link' +
       (current ? " is-current" : "") +
       '" href="' +
       href +
@@ -54,38 +54,61 @@
 
   var header =
     '<header class="masthead">' +
-      '<div class="titlebar">' +
-        '<a class="titlebar__brand" href="' + base + 'index.html" aria-label="' + escapeHtml(cfg.siteName) + ', accueil">' +
-          '<img class="titlebar__logo" src="' + base + 'assets/logo.svg" width="20" height="20" alt="">' +
-          '<span class="titlebar__name">' + escapeHtml(cfg.siteName) + '</span>' +
-          '<span class="titlebar__tag">lecteur local</span>' +
+      '<div class="masthead__inner">' +
+        '<a class="brand" href="' + base + 'index.html" aria-label="' + escapeHtml(cfg.siteName) + ', accueil">' +
+          '<img class="brand__logo" src="' + base + 'assets/logo.svg" width="28" height="28" alt="">' +
+          '<span class="brand__text">' +
+            '<span class="brand__name">' + escapeHtml(cfg.siteName) + '</span>' +
+            '<span class="brand__sub">Lecteur audio pour Windows</span>' +
+          '</span>' +
         '</a>' +
-        '<span class="titlebar__version">v' + escapeHtml(cfg.version) + '</span>' +
-        '<span class="titlebar__controls" aria-hidden="true">' +
-          '<span class="titlebar__control" title="Réduire">_</span>' +
-          '<span class="titlebar__control" title="Agrandir">□</span>' +
-          '<span class="titlebar__control titlebar__control--close" title="Fermer">×</span>' +
-        '</span>' +
+        '<nav class="site-nav" aria-label="Navigation principale">' +
+          navLink("home", "Accueil", base + "index.html") +
+          navLink("download", "Télécharger", base + "download.html") +
+          navLink("features", "Fonctionnalités", base + "features.html") +
+          navLink("docs", "Documentation", base + "docs/index.html") +
+          '<a class="site-nav__link site-nav__link--ext" data-repo-link href="' + repoUrl + '">' +
+            'GitHub<span class="external-mark" aria-hidden="true">↗</span>' +
+          '</a>' +
+        '</nav>' +
       '</div>' +
-      '<nav class="menubar" aria-label="Navigation principale">' +
-        navLink("home", "Accueil", base + "index.html") +
-        navLink("download", "Télécharger", base + "download.html") +
-        navLink("features", "Fonctionnalités", base + "features.html") +
-        navLink("docs", "Documentation", base + "docs/index.html") +
-        '<span class="menubar__spacer"></span>' +
-        '<a class="menubar__link menubar__link--external" data-repo-link href="' + repoUrl + '">' +
-          'GitHub<span class="external-mark" aria-hidden="true">↗</span>' +
-        '</a>' +
-      '</nav>' +
     '</header>';
 
   var footer =
-    '<footer class="statusbar">' +
-      '<span class="statusbar__cell statusbar__cell--grow"><span class="statusbar__led" aria-hidden="true"></span>Prêt</span>' +
-      '<span class="statusbar__cell">' + escapeHtml(cfg.siteName) + ' <span data-version>' + escapeHtml(cfg.version) + '</span></span>' +
-      '<span class="statusbar__cell">ABI plugins v' + escapeHtml(cfg.abiVersion) + '</span>' +
-      '<a class="statusbar__cell statusbar__link" data-repo-link href="' + repoUrl + '">Code source</a>' +
-      '<a class="statusbar__cell statusbar__link" href="#main">Haut de page</a>' +
+    '<footer class="site-footer">' +
+      '<div class="site-footer__inner">' +
+        '<div class="site-footer__about">' +
+          '<a class="brand" href="' + base + 'index.html">' +
+            '<img class="brand__logo" src="' + base + 'assets/logo.svg" width="28" height="28" alt="">' +
+            '<span class="brand__text"><span class="brand__name">' + escapeHtml(cfg.siteName) + '</span></span>' +
+          '</a>' +
+          '<p>Lecteur audio local pour Windows 10/11. Bibliothèque, formats lossless, traitement audio et plugins DLL.</p>' +
+        '</div>' +
+        '<nav class="site-footer__col" aria-labelledby="footer-site">' +
+          '<h2 id="footer-site">Site</h2>' +
+          '<a href="' + base + 'index.html">Accueil</a>' +
+          '<a href="' + base + 'features.html">Fonctionnalités</a>' +
+          '<a href="' + base + 'download.html">Télécharger</a>' +
+        '</nav>' +
+        '<nav class="site-footer__col" aria-labelledby="footer-docs">' +
+          '<h2 id="footer-docs">Documentation</h2>' +
+          '<a href="' + base + 'docs/index.html">Sommaire</a>' +
+          '<a href="' + base + 'docs/getting-started.html">Créer un plugin</a>' +
+          '<a href="' + base + 'docs/plugin-api.html">Référence de l’API</a>' +
+          '<a href="' + base + 'docs/changelog.html">Changelog</a>' +
+        '</nav>' +
+        '<div class="site-footer__col" aria-labelledby="footer-version">' +
+          '<h2 id="footer-version">Version</h2>' +
+          '<p><span data-version>' + escapeHtml(cfg.version) + '</span> · ABI plugins v' + escapeHtml(cfg.abiVersion) + '</p>' +
+          '<a data-release-link href="' + releaseUrl + '">Dernière release</a>' +
+          '<a data-repo-link href="' + repoUrl + '">Code source</a>' +
+          '<a href="#main">Haut de page</a>' +
+        '</div>' +
+      '</div>' +
+      '<div class="site-footer__bottom">' +
+        '<span>© <span data-year>2026</span> ' + escapeHtml(cfg.siteName) + '</span>' +
+        '<span>Site statique, sans traqueur ni cookie.</span>' +
+      '</div>' +
     '</footer>';
 
   var headerMount = document.getElementById("site-header");

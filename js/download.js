@@ -29,12 +29,6 @@
     if (state) status.classList.add("is-" + state);
   }
 
-  function setText(selector, text) {
-    document.querySelectorAll(selector).forEach(function (node) {
-      node.textContent = text;
-    });
-  }
-
   function formatDate(value) {
     if (!value) return "date inconnue";
     var date = new Date(value);
@@ -50,12 +44,6 @@
     }
   }
 
-  function formatSize(bytes) {
-    if (!bytes || typeof bytes !== "number") return "taille inconnue";
-    var mb = bytes / (1024 * 1024);
-    return mb.toFixed(mb >= 10 ? 0 : 1).replace(".", ",") + " Mo";
-  }
-
   function applyRelease(data) {
     var tag = data.tag_name || data.name || cfg.version;
     var published = data.published_at || "";
@@ -64,11 +52,7 @@
       return /\.exe$/i.test(asset.name || "");
     })[0];
 
-    setText("[data-latest-version]", tag);
-    setText("[data-latest-date]", formatDate(published));
-
     if (exe) {
-      setText("[data-latest-size]", formatSize(exe.size));
       document.querySelectorAll("[data-download-link]").forEach(function (link) {
         link.setAttribute("href", exe.browser_download_url);
         link.setAttribute("download", "");
@@ -78,12 +62,11 @@
         "ok"
       );
     } else {
-      setText("[data-latest-size]", "—");
       document.querySelectorAll("[data-download-link]").forEach(function (link) {
         link.setAttribute("href", data.html_url || releaseUrl);
       });
       setStatus(
-        "Version " + tag + " détectée, mais aucun fichier .exe n'est publié dans ses assets. Le bouton ouvre la page de release.",
+        "Version " + tag + " détectée, mais aucun fichier .exe n’est publié dans ses assets. Le bouton ouvre la page de release.",
         "warn"
       );
     }
@@ -99,7 +82,7 @@
   function load() {
     if (!isConfigured) {
       setStatus(
-        "Détection GitHub désactivée : remplacez [MON_PSEUDO] dans js/config.js. Le lien de secours reste actif.",
+        "La vérification automatique de la release est indisponible. Le bouton ouvre la page des releases du dépôt.",
         "warn"
       );
       return;

@@ -42,8 +42,7 @@
       '" href="' + page.file + '"' +
       (active ? ' aria-current="page"' : "") +
       ' title="' + escapeAttr(page.short) + '">' +
-        '<span class="tree-ico tree-ico--file" aria-hidden="true"></span>' +
-        "<span>" + escapeHtml(page.title) + "</span>" +
+        escapeHtml(page.title) +
       "</a>"
     );
   }
@@ -67,9 +66,7 @@
   GROUPS.forEach(function (group) {
     tree +=
       '<div class="tree-group">' +
-        '<div class="tree-folder"><span class="tree-ico tree-ico--folder" aria-hidden="true"></span>' +
-          escapeHtml(group.label) +
-        "</div>" +
+        '<div class="tree-folder">' + escapeHtml(group.label) + "</div>" +
         group.items.map(function (id) {
           return linkFor(pageById(id));
         }).join("") +
@@ -79,14 +76,10 @@
   aside.innerHTML =
     '<details class="explorer"' + (isNarrow ? "" : " open") + ">" +
       '<summary class="explorer__title">' +
-        '<span class="explorer__book" aria-hidden="true">▤</span>' +
         "<span>Documentation des plugins</span>" +
         '<span class="explorer__hint">sommaire</span>' +
       "</summary>" +
       '<div class="explorer__body">' +
-        '<div class="explorer__root"><span class="tree-ico tree-ico--disk" aria-hidden="true"></span>' +
-          "FloralPlayer / docs" +
-        "</div>" +
         '<nav class="tree" aria-label="Sommaire de la documentation">' +
           tree +
         "</nav>" +
@@ -128,8 +121,7 @@
       var level = heading.tagName === "H3" ? " is-sub" : "";
       return (
         '<a class="tree-link tree-link--toc' + level + '" href="#' + heading.id + '" data-toc-target="' + heading.id + '">' +
-          '<span class="tree-ico tree-ico--doc" aria-hidden="true"></span>' +
-          "<span>" + escapeHtml(heading.textContent.trim()) + "</span>" +
+          escapeHtml(heading.textContent.trim()) +
         "</a>"
       );
     }).join("");

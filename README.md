@@ -7,9 +7,16 @@ vanilla, avec des chemins relatifs.
 ## Direction visuelle
 
 Le site reprend l’interface de FloralPlayer : fonds noirs chauds (`#050403` à `#312a27`),
-accent orange (`#ff4b14`), barres de titre glacées, boutons en métal sombre avec arête
-lumineuse et petit rayon de 3 px. Les valeurs proviennent de la palette générée par
-`Ember Player/src/theme_gen.rs` (thème par défaut : `nh=20`, `ns=12`, `ah=14`, `as=100`).
+accent orange (`#ff4b14`), textes clairs et boutons en métal sombre avec arête lumineuse.
+Les valeurs proviennent de la palette générée par `Ember Player/src/theme_gen.rs`
+(thème par défaut : `nh=20`, `ns=12`, `ah=14`, `as=100`).
+
+La mise en page est celle d’un site produit, pas d’une réplique de fenêtre Windows :
+en-tête avec marque et navigation texte, pied de page en colonnes, sections séparées par
+des filets, listes éditoriales (`ledger`, `entry-grid`, `summary-row`) plutôt que des
+grilles de tuiles. Les seuls accents orange sont le liseré de l’en-tête, le bord supérieur
+de l’explorateur de documentation et les liens actifs.
+
 Tout est centralisé dans les variables de `css/style.css` : aucun réglage n’est dupliqué
 dans les pages ni dans les scripts.
 
@@ -23,7 +30,7 @@ website/
   .nojekyll                   Désactive Jekyll sur GitHub Pages
   assets/
     logo.svg
-    screenshot-placeholder.svg
+    interface-preview.svg      Maquette de l’interface, assumée comme telle
   css/
     style.css                 Thème sombre FloralPlayer, variables, responsive, impression
   js/
@@ -104,7 +111,7 @@ window.FLORALPLAYER = {
 
 - `githubUser` : remplacez `[MON_PSEUDO]` par le compte ou l’organisation GitHub.
 - `repo` : nom exact du dépôt qui contient les releases.
-- `version` et `abiVersion` : recopiés dans l’en-tête, le pied de page et les badges
+- `version` et `abiVersion` : recopiés dans le pied de page et les badges
   `data-version` / `data-abi-version`.
 - `released` : date affichée par défaut avant la détection GitHub.
 
@@ -152,18 +159,24 @@ remplacez l’injection par le même balisage recopié dans chaque page.
 
 Aucune bibliothèque de coloration ou de copie n’est chargée.
 
-## Placeholders et contenus à compléter
+## Placeholders restants
+
+Le contenu rédactionnel ne comporte plus de mention « À compléter ». Il reste un seul
+placeholder de configuration, ainsi que des limites techniques assumées.
 
 | Emplacement | À remplacer / compléter |
 |---|---|
 | `js/config.js` | `[MON_PSEUDO]`, `repo`, `version`, `abiVersion`, `released` |
 | `js/layout.js`, `js/download.js` | valeurs de secours `[MON_PSEUDO]` (facultatif si `config.js` est toujours chargé) |
 | `index.html`, `download.html`, `features.html` | liens de secours `[MON_PSEUDO]` |
-| `download.html` — encadré « Informations de publication » | nom d’éditeur, licence du binaire, empreintes SHA-256, signature Authenticode |
-| `assets/screenshot-placeholder.svg` | à remplacer par une vraie capture, ou conserver comme maquette assumée |
+| `assets/interface-preview.svg` | maquette SVG ; à remplacer par une capture réelle si elle devient disponible |
 | `docs/changelog.html` | historique produit complet, dates de release, politique ABI v2 |
-| `docs/plugin-api.html`, `docs/plugin-structure.html`, `docs/examples.html` | points marqués « À compléter » : en-tête C, panneaux, sources `hello`/`remote`, tests de chargement |
-| `features.html` | état exact de l’égaliseur, marqué « À compléter » |
+| `docs/plugin-api.html`, `docs/plugin-structure.html`, `docs/examples.html` | limites de l’ABI, sources `hello`/`remote` absentes, absence de tests de chargement |
+| `features.html` | égaliseur présent dans l’application mais non vérifié pour cette version |
+
+Tant que `[MON_PSEUDO]` n’est pas remplacé, `js/download.js` affiche un message neutre :
+la vérification automatique de la release est indisponible, et le bouton ouvre la page
+des releases. Aucun détail technique n’est montré au visiteur.
 
 Le contenu technique des pages `docs/` a été rédigé à partir du code présent dans
 `ember-sdk/` et `Ember Player/`, pas à partir de `DocPlugin.html` ni de `ember-sdk/README.md`.

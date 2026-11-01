@@ -34,11 +34,6 @@
       </aside>
 
       <article class="doc-window">
-        <div class="doc-titlebar">
-          <span class="doc-titlebar__icon" aria-hidden="true">▤</span>
-          <span class="doc-titlebar__text">FloralPlayer — Documentation des plugins</span>
-          <span class="window__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
-        </div>
         <div class="doc-toolbar">
           <nav class="breadcrumb" data-doc-breadcrumb aria-label="Fil d’Ariane"></nav>
           <span class="small muted doc-toolbar__note">ABI v1 · SDK 0.1.0</span>
@@ -79,28 +74,24 @@
             depuis l’explorateur à gauche.
           </p>
 
-          <div class="card-grid card-grid--two">
-            <article class="card">
-              <div class="card__head"><span class="icon-tile" aria-hidden="true">1</span><h3>Créer son premier plugin</h3></div>
+          <ul class="ledger ledger--docs">
+            <li>
+              <h3><a href="getting-started.html">Créer son premier plugin</a></h3>
               <p>Prérequis, crate <code>cdylib</code>, code minimal, compilation et installation dans le bon dossier.</p>
-              <p class="card__foot"><a href="getting-started.html">Guide de démarrage →</a></p>
-            </article>
-            <article class="card">
-              <div class="card__head"><span class="icon-tile" aria-hidden="true">2</span><h3>Référence de l’API</h3></div>
+            </li>
+            <li>
+              <h3><a href="plugin-api.html">Référence de l’API</a></h3>
               <p>Table <code>PluginV1</code>, callbacks <code>HostApi</code>, trait <code>Plugin</code>, flags, snapshots, événements et actions.</p>
-              <p class="card__foot"><a href="plugin-api.html">Référence ABI v1 →</a></p>
-            </article>
-            <article class="card">
-              <div class="card__head"><span class="icon-tile" aria-hidden="true">3</span><h3>Structure et cycle de vie</h3></div>
+            </li>
+            <li>
+              <h3><a href="plugin-structure.html">Structure et cycle de vie</a></h3>
               <p>Scan des DLL, chargement, activation, fils d’exécution, réglages, journal, erreurs et modèle de confiance.</p>
-              <p class="card__foot"><a href="plugin-structure.html">Comprendre le chargement →</a></p>
-            </article>
-            <article class="card">
-              <div class="card__head"><span class="icon-tile" aria-hidden="true">4</span><h3>Exemples commentés</h3></div>
+            </li>
+            <li>
+              <h3><a href="examples.html">Exemples commentés</a></h3>
               <p>Extraits réels des plugins <code>listenbrainz</code> et <code>discord</code>, et patrons pour les appels réseau ou les fils.</p>
-              <p class="card__foot"><a href="examples.html">Lire les exemples →</a></p>
-            </article>
-          </div>
+            </li>
+          </ul>
 
           <h2 id="familles">Deux familles de plugins</h2>
           <p>
@@ -191,7 +182,7 @@
           </div>
 
           <h2 id="etat">État de la documentation</h2>
-          <div class="callout callout--todo">
+          <div class="callout callout--flat">
             <p class="callout__title">Points ouverts</p>
             <ul>
               <li>Aucun manifeste de plugin : les métadonnées sont compilées dans la table <code>PluginV1</code>. Un manifeste séparé n’existe pas.</li>

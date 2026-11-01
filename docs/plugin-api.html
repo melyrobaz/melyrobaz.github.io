@@ -34,11 +34,6 @@
       </aside>
 
       <article class="doc-window">
-        <div class="doc-titlebar">
-          <span class="doc-titlebar__icon" aria-hidden="true">▤</span>
-          <span class="doc-titlebar__text">FloralPlayer — Référence de l’API</span>
-          <span class="window__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
-        </div>
         <div class="doc-toolbar">
           <nav class="breadcrumb" data-doc-breadcrumb aria-label="Fil d’Ariane"></nav>
           <span class="small muted doc-toolbar__note">ABI 1 · crate 0.1.0</span>
@@ -349,8 +344,8 @@ pub struct HostApi {
             <li>Journaliser le détail d’un échec d’initialisation avant de renvoyer <code>Err</code> : le texte est perdu à la frontière C.</li>
           </ol>
 
-          <div class="callout callout--todo">
-            <p class="callout__title">À compléter</p>
+          <div class="callout callout--flat">
+            <p class="callout__title">Ce que l’ABI ne couvre pas</p>
             <ul>
               <li>Il n’existe pas d’en-tête C/C++ fourni. Un plugin hors Rust doit reconstruire les structures <code>#[repr(C)]</code> à la main.</li>
               <li>Le format des données de panneau n’est pas spécifié, puisque l’hôte ne les interprète pas.</li>

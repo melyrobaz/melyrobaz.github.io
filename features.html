@@ -17,30 +17,31 @@
   <main id="main" class="wrap">
     <div class="page-head">
       <div>
-        <span class="eyebrow">Fonctionnalités</span>
-        <h1>Un lecteur complet, sans dépendance au cloud</h1>
-        <p>Bibliothèque, audio, intégrations et personnalisation. Les fonctions ci-dessous décrivent le portage natif <span data-version>2.6.0</span>.</p>
+        <span class="eyebrow">Version <span data-version>2.6.0</span></span>
+        <h1>Fonctionnalités et limites</h1>
+        <p>Ce que contient le portage natif Windows, ce qui n’est pas repris de la version Electron et les limites connues de l’ABI des plugins.</p>
       </div>
       <span class="badge badge--blue">Windows 10/11 · x64</span>
     </div>
 
-    <div class="card-grid" aria-label="Domaines principaux">
-      <article class="card">
-        <div class="card__head"><span class="icon-tile" aria-hidden="true">▤</span><h3>Bibliothèque</h3></div>
-        <p>13 colonnes, recherche structurée, playlists, CUE, vues intelligentes et caches locaux.</p>
-        <p class="card__foot"><a href="#bibliotheque">Voir le détail →</a></p>
-      </article>
-      <article class="card">
-        <div class="card__head"><span class="icon-tile" aria-hidden="true">♫</span><h3>Audio</h3></div>
-        <p>ReplayGain, crossfeed, limiteur, gapless, crossfade et vitesse avec WSOLA.</p>
-        <p class="card__foot"><a href="#audio">Voir le détail →</a></p>
-      </article>
-      <article class="card">
-        <div class="card__head"><span class="icon-tile" aria-hidden="true">⇄</span><h3>Intégrations</h3></div>
-        <p>Discord, ListenBrainz, Soulseek, télécommande LAN et raccourcis globaux.</p>
-        <p class="card__foot"><a href="#integrations">Voir le détail →</a></p>
-      </article>
-    </div>
+    <nav class="summary-row" aria-label="Sections de la page">
+      <a href="#bibliotheque">
+        <strong>Bibliothèque</strong>
+        <span>13 colonnes, playlists, CUE, vues intelligentes</span>
+      </a>
+      <a href="#audio">
+        <strong>Audio</strong>
+        <span>ReplayGain, crossfeed, limiteur, gapless, WSOLA</span>
+      </a>
+      <a href="#integrations">
+        <strong>Intégrations</strong>
+        <span>Discord, ListenBrainz, Soulseek, LAN</span>
+      </a>
+      <a href="#plugins">
+        <strong>Plugins</strong>
+        <span>ABI v1, DLL, JSON et limites du SDK</span>
+      </a>
+    </nav>
 
     <section class="section" aria-labelledby="interface-title">
       <div class="section-head">
@@ -49,7 +50,7 @@
       </div>
 
       <div class="feature-block">
-        <h2><span class="icon-tile" aria-hidden="true">▣</span> Un poste de travail musical</h2>
+        <h2>Un poste de travail musical</h2>
         <p class="feature-block__intro">L’interface reprend les codes du bureau classique : menus, barres d’outils, listes denses et panneaux redimensionnables.</p>
         <ul class="feature-list">
           <li>Vues Album et Single, avec 13 colonnes configurables : lecture, numéro, artiste, album, titre, année, genre, débit, durée, type, note, lectures et RYM.</li>
@@ -124,13 +125,12 @@
         </ul>
       </div>
 
-      <div class="callout callout--todo">
-        <p class="callout__title">Égaliseur : état à confirmer</p>
+      <div class="callout callout--flat">
+        <p class="callout__title">Égaliseur</p>
         <p>
-          Une interface d’égaliseur existe dans l’application, mais le code de plugin documenté
-          n’expose aucun accès aux échantillons audio. Cette page ne présente donc pas
-          l’égaliseur comme une fonction garantie. À compléter avec l’état exact du traitement
-          pour la version publiée.
+          Une interface d’égaliseur existe dans l’application, mais le contrat des plugins
+          n’expose pas les échantillons audio et le traitement n’a pas été vérifié pour cette
+          version. Cette page ne le compte donc pas parmi les fonctions garanties.
         </p>
       </div>
     </section>
@@ -141,36 +141,36 @@
         <a class="section-head__link" href="download.html#vie-privee">Vie privée →</a>
       </div>
 
-      <div class="card-grid">
-        <article class="card">
-          <div class="card__head"><span class="icon-tile" aria-hidden="true">D</span><h3>Discord</h3></div>
+      <div class="entry-grid">
+        <article class="entry">
+          <h3>Discord</h3>
           <p>Présence « écoute » avec titre, artiste, album et temps. Client IPC natif, reconnexion automatique, identifiant d’application configurable.</p>
-          <p class="card__foot">Nécessite Discord ouvert.</p>
+          <p class="entry__foot">Nécessite Discord ouvert.</p>
         </article>
-        <article class="card">
-          <div class="card__head"><span class="icon-tile" aria-hidden="true">L</span><h3>ListenBrainz</h3></div>
+        <article class="entry">
+          <h3>ListenBrainz</h3>
           <p>« En écoute maintenant » au démarrage de piste, puis écoute validée après le seuil <code>min(30, durée/2)</code> secondes. Envoi HTTPS non bloquant.</p>
-          <p class="card__foot">Jeton utilisateur requis.</p>
+          <p class="entry__foot">Jeton utilisateur requis.</p>
         </article>
-        <article class="card">
-          <div class="card__head"><span class="icon-tile" aria-hidden="true">S</span><h3>Soulseek</h3></div>
+        <article class="entry">
+          <h3>Soulseek</h3>
           <p>Client pair-à-pair natif : connexion, recherche (600 résultats maximum, délai 10 s), tri, filtre, téléchargement, progression et lecture après transfert.</p>
-          <p class="card__foot"><a href="download.html#vie-privee">Téléchargement uniquement, pas de partage →</a></p>
+          <p class="entry__foot"><a href="download.html#vie-privee">Téléchargement uniquement, pas de partage →</a></p>
         </article>
-        <article class="card">
-          <div class="card__head"><span class="icon-tile" aria-hidden="true">R</span><h3>Télécommande LAN</h3></div>
+        <article class="entry">
+          <h3>Télécommande LAN</h3>
           <p>Page web responsive avec jeton de session, état, lecture/pause, précédent/suivant/stop, volume et mute. Désactivée par défaut.</p>
-          <p class="card__foot">Port 8765, repli 8766–8774. Trafic local non chiffré.</p>
+          <p class="entry__foot">Port 8765, repli 8766–8774. Trafic local non chiffré.</p>
         </article>
-        <article class="card">
-          <div class="card__head"><span class="icon-tile" aria-hidden="true">⌘</span><h3>Raccourcis</h3></div>
+        <article class="entry">
+          <h3>Raccourcis</h3>
           <p>Touches locales fixes et sept actions globales personnalisables : lecture/pause, suivant, précédent, stop, volume +, volume −, mute.</p>
-          <p class="card__foot">Les touches multimédia restent enregistrées globalement.</p>
+          <p class="entry__foot">Les touches multimédia restent enregistrées globalement.</p>
         </article>
-        <article class="card">
-          <div class="card__head"><span class="icon-tile" aria-hidden="true">W</span><h3>Windows</h3></div>
+        <article class="entry">
+          <h3>Windows</h3>
           <p>Instance unique avec IPC locale, ouverture par arguments, associations « Ouvrir avec » pour 20 extensions dans HKCU, icône et métadonnées de version.</p>
-          <p class="card__foot">Installation sans droits administrateur.</p>
+          <p class="entry__foot">Installation sans droits administrateur.</p>
         </article>
       </div>
     </section>
@@ -235,11 +235,11 @@
 
     <div class="cta-band">
       <div>
-        <h2>Essayer FloralPlayer</h2>
+        <h2>Télécharger la version <span data-version>2.6.0</span></h2>
         <p>Windows 10/11 64 bits. Le lecteur, les formats et la bibliothèque fonctionnent hors ligne.</p>
       </div>
       <div class="button-row m-0">
-        <a class="button button--primary" data-release-link href="https://github.com/[MON_PSEUDO]/FloralPlayer/releases/latest">Télécharger la <span data-version>2.6.0</span></a>
+        <a class="button button--primary" data-release-link href="https://github.com/[MON_PSEUDO]/FloralPlayer/releases/latest">Voir la release</a>
         <a class="button" href="download.html">Guide d’installation</a>
       </div>
     </div>

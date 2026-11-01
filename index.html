@@ -15,113 +15,93 @@
   <div id="site-header"></div>
 
   <main id="main" class="wrap">
-    <section class="window hero-window" aria-labelledby="hero-title">
-      <div class="window__titlebar">
-        <span class="window__titlebar-text">FloralPlayer — Accueil</span>
-        <span class="window__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__text">
+        <p class="hero__kicker">Windows 10/11 · version <span data-version>2.6.0</span></p>
+        <h1 id="hero-title">Floral<span class="accent">Player</span></h1>
+        <p class="hero__tagline">Lecteur audio local pour Windows, écrit en Rust.</p>
+        <p class="hero__desc">
+          Bibliothèque, formats lossless, traitement audio, thèmes et plugins DLL.
+          FloralPlayer lit les fichiers dans vos dossiers et garde ses réglages sur la machine :
+          aucun compte, aucune synchronisation obligatoire.
+        </p>
+
+        <div class="button-row">
+          <a class="button button--primary button--large" data-release-link href="https://github.com/[MON_PSEUDO]/FloralPlayer/releases/latest">
+            <span class="button__icon" aria-hidden="true">↓</span>
+            <span>
+              Télécharger la <span data-version>2.6.0</span>
+              <span class="button__sub">Windows 10/11 · 64 bits</span>
+            </span>
+          </a>
+          <a class="button" href="docs/index.html">Documentation</a>
+          <a class="button" href="features.html">Fonctionnalités</a>
+        </div>
+
+        <p class="hero__note">
+          Le bouton ouvre la dernière release publiée sur GitHub. L’installation ne demande
+          pas de droits administrateur.
+        </p>
+
+        <dl class="facts">
+          <div>
+            <dt>Version</dt>
+            <dd><span data-version>2.6.0</span></dd>
+          </div>
+          <div>
+            <dt>Système</dt>
+            <dd>Windows 10/11 · x64</dd>
+          </div>
+          <div>
+            <dt>Données</dt>
+            <dd>Sur votre disque</dd>
+          </div>
+        </dl>
       </div>
 
-      <div class="hero">
-        <div class="hero__text">
-          <span class="eyebrow">Lecteur audio local · Windows</span>
-          <h1 id="hero-title">Floral<span class="accent">Player</span></h1>
-          <p class="hero__tagline">Votre musique reste sur votre disque.</p>
-          <p class="hero__desc">
-            Un lecteur de bureau inspiré de foobar2000 : bibliothèque rapide, formats lossless,
-            traitement audio, playlists, thèmes et un système de plugins DLL. Sans compte,
-            sans abonnement, sans service à installer à côté.
-          </p>
-
-          <div class="button-row">
-            <a class="button button--primary button--large" data-release-link href="https://github.com/[MON_PSEUDO]/FloralPlayer/releases/latest">
-              <span class="button__icon" aria-hidden="true">↓</span>
-              <span>
-                Télécharger la <span data-version>2.6.0</span>
-                <span class="button__sub">Windows 10/11 · 64 bits</span>
-              </span>
-            </a>
-            <a class="button" href="docs/index.html">Documentation</a>
-            <a class="button" href="features.html">Fonctionnalités</a>
+      <div class="hero__media">
+        <figure class="shot">
+          <div class="shot__canvas">
+            <img src="assets/interface-preview.svg" width="1200" height="760" alt="Aperçu de l’interface de FloralPlayer : liste de pistes, panneau de lecture, contrôles et spectre audio." decoding="async">
           </div>
-
-          <p class="hero__note">
-            Téléchargement depuis les releases GitHub. Le lien ouvre toujours la dernière version publiée.
-          </p>
-
-          <div class="fact-grid">
-            <div class="fact">
-              <span class="fact__label">Version actuelle</span>
-              <span class="fact__value"><span data-version>2.6.0</span></span>
-            </div>
-            <div class="fact">
-              <span class="fact__label">Système</span>
-              <span class="fact__value">Windows 10/11 · x64</span>
-            </div>
-            <div class="fact">
-              <span class="fact__label">Données</span>
-              <span class="fact__value">100 % locales</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero__media">
-          <figure class="shot">
-            <div class="shot__titlebar">
-              <span>FloralPlayer — Bibliothèque</span>
-              <span class="shot__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
-            </div>
-            <div class="shot__canvas">
-              <img src="assets/screenshot-placeholder.svg" width="1200" height="760" alt="Aperçu de l’interface de FloralPlayer : liste de pistes, panneau de lecture, contrôles et spectre audio." decoding="async">
-            </div>
-            <figcaption>Aperçu de l’interface. Capture réelle à remplacer dans <code>assets/</code>.</figcaption>
-          </figure>
-        </div>
+          <figcaption>Bibliothèque, file d’attente et panneau de lecture.</figcaption>
+        </figure>
       </div>
     </section>
 
-    <section class="section" aria-labelledby="why-title">
-      <div class="section-head">
+    <section class="section section--split" aria-labelledby="why-title">
+      <div class="section-intro">
         <h2 id="why-title">Un lecteur de bureau, pas une plateforme</h2>
+        <p>
+          FloralPlayer reprend les principes de foobar2000 : listes denses, colonnes
+          configurables et réglages fins. L’interface est native, les fichiers restent
+          dans leur arborescence.
+        </p>
         <a class="section-head__link" href="features.html">Toutes les fonctionnalités →</a>
       </div>
 
-      <div class="card-grid">
-        <article class="card">
-          <div class="card__head">
-            <span class="icon-tile" aria-hidden="true">♫</span>
-            <h3>Bibliothèque et lecture</h3>
-          </div>
-          <p>
-            Colonnes configurables, recherche par champs, playlists, file d’attente,
-            paroles synchronisées, reprise de session et glisser-déposer depuis l’Explorateur.
-          </p>
-          <p class="card__foot"><a href="features.html#bibliotheque">Bibliothèque et formats →</a></p>
-        </article>
-
-        <article class="card">
-          <div class="card__head">
-            <span class="icon-tile" aria-hidden="true">▤</span>
-            <h3>Audio maîtrisé</h3>
-          </div>
-          <p>
-            ReplayGain, préampli, balance, limiteur de crêtes, crossfeed, downmix mono,
-            gapless, crossfade et vitesse de 0,5× à 2× avec conservation de la hauteur.
-          </p>
-          <p class="card__foot"><a href="features.html#audio">Traitement et formats →</a></p>
-        </article>
-
-        <article class="card">
-          <div class="card__head">
-            <span class="icon-tile" aria-hidden="true">⇄</span>
-            <h3>Intégrations optionnelles</h3>
-          </div>
-          <p>
-            Discord Rich Presence, ListenBrainz, recherche et téléchargement Soulseek,
-            télécommande LAN. Chaque intégration reste désactivable et ne bloque jamais la lecture.
-          </p>
-          <p class="card__foot"><a href="download.html#vie-privee">Vie privée et réseau →</a></p>
-        </article>
-      </div>
+      <ul class="ledger">
+        <li>
+          <h3>Bibliothèque et lecture</h3>
+          <p>Colonnes configurables, recherche par champs, playlists, file d’attente, paroles synchronisées, reprise de session et glisser-déposer depuis l’Explorateur.</p>
+        </li>
+        <li>
+          <h3>Formats</h3>
+          <p>FLAC, MP3 (y compris VBR), WAV, OGG/Vorbis, AAC/M4A, images disque avec feuilles CUE et flux HTTP(S).</p>
+        </li>
+        <li>
+          <h3>Audio</h3>
+          <p>ReplayGain piste ou album, préampli, balance, limiteur de crêtes, crossfeed, downmix mono, gapless, crossfade et vitesse de 0,5× à 2×.</p>
+        </li>
+        <li>
+          <h3>Intégrations</h3>
+          <p>Discord Rich Presence, ListenBrainz, recherche et téléchargement Soulseek, télécommande LAN. Chaque intégration est optionnelle.</p>
+        </li>
+        <li>
+          <h3>Plugins</h3>
+          <p>Des DLL chargées au démarrage, une table d’entrée en C et des échanges JSON. Le SDK documente le cycle de vie et les limites réelles.</p>
+        </li>
+      </ul>
     </section>
 
     <section class="section" aria-labelledby="dev-title">
@@ -132,7 +112,6 @@
 
       <div class="split">
         <div class="panel panel--paper">
-          <span class="eyebrow">ABI v1 · DLL</span>
           <h3>Des plugins en Rust, une frontière en C</h3>
           <p>
             Les plugins sont des DLL chargées au démarrage. La macro <code>declare_plugin!</code>
@@ -163,12 +142,12 @@
 
     <div class="cta-band">
       <div>
-        <h2>Prêt à écouter autrement ?</h2>
-        <p>Windows 10/11 64 bits. Aucun compte. Vos fichiers, vos réglages, votre bibliothèque.</p>
+        <h2>Télécharger FloralPlayer <span data-version>2.6.0</span></h2>
+        <p>Windows 10/11 64 bits · installation sans droits administrateur.</p>
       </div>
       <div class="button-row m-0">
-        <a class="button button--primary" data-release-link href="https://github.com/[MON_PSEUDO]/FloralPlayer/releases/latest">Télécharger FloralPlayer</a>
-        <a class="button" href="download.html">Instructions d’installation</a>
+        <a class="button button--primary" data-release-link href="https://github.com/[MON_PSEUDO]/FloralPlayer/releases/latest">Voir la release</a>
+        <a class="button" href="download.html">Guide d’installation</a>
       </div>
     </div>
   </main>
