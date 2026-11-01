@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Structure et cycle de vie — plugins FloralPlayer</title>
+  <meta name="description" content="Chargement des DLL, dossiers scannés, cycle de vie, fils d’exécution, persistance, journal, erreurs et modèle de confiance des plugins FloralPlayer.">
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/config.js" defer></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/docs.js" defer></script>
+</head>
+<body data-page="docs" data-doc="plugin-structure">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="wrap wrap--docs">
+    <div class="docs-layout">
+      <aside class="docs-sidebar" data-docs-sidebar>
+        <noscript>
+          <div class="panel">
+            <h3>Sommaire</h3>
+            <ul>
+              <li><a href="index.html">Sommaire</a></li>
+              <li><a href="getting-started.html">Créer son premier plugin</a></li>
+              <li><a href="plugin-api.html">Référence de l’API</a></li>
+              <li><a href="plugin-structure.html">Structure et cycle de vie</a></li>
+              <li><a href="examples.html">Exemples commentés</a></li>
+              <li><a href="changelog.html">Changelog</a></li>
+            </ul>
+          </div>
+        </noscript>
+      </aside>
+
+      <article class="doc-window">
+        <div class="doc-titlebar">
+          <span class="doc-titlebar__icon" aria-hidden="true">▤</span>
+          <span class="doc-titlebar__text">FloralPlayer — Structure et cycle de vie</span>
+          <span class="window__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
+        </div>
+        <div class="doc-toolbar">
+          <nav class="breadcrumb" data-doc-breadcrumb aria-label="Fil d’Ariane"></nav>
+          <span class="small muted doc-toolbar__note">Hôte 2.6.0 · Windows</span>
+        </div>
+
+        <div class="doc-content">
+          <span class="doc-kicker">Architecture</span>
+          <h1 class="doc-title">Structure et cycle de vie</h1>
+          <p class="doc-lede">
+            Où placer une DLL, quand elle est chargée, dans quel ordre ses méthodes sont appelées,
+            sur quel fil, et ce qui se passe quand elle échoue. Cette page décrit le comportement
+            observé dans le noyau de FloralPlayer <span data-version>2.6.0</span>.
+          </p>
+
+          <div class="doc-meta">
+            <span class="badge badge--blue">Scan au démarrage</span>
+            <span class="badge">Fil UI uniquement</span>
+            <span class="badge badge--warn">Sans bac à sable</span>
+          </div>
+
+          <h2 id="etat-sdk">État actuel du SDK</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Élément</th><th scope="col">Valeur constatée</th></tr></thead>
+              <tbody>
+                <tr><td>Version de l’hôte</td><td><code>floral-player-slint</code> 2.6.0</td></tr>
+                <tr><td>Version d’ABI</td><td><code>1</code>, comparaison stricte</td></tr>
+                <tr><td>Crate de contrat</td><td><code>ember-plugin-api</code> 0.1.0, aucune dépendance</td></tr>
+                <tr><td>Édition Rust</td><td>2021</td></tr>
+                <tr><td>Membres déclarés dans le workspace</td><td>5 : <code>ember-plugin-api</code>, <code>hello</code>, <code>discord</code>, <code>listenbrainz</code>, <code>remote</code></td></tr>
+                <tr><td>Dossiers de plugins réellement présents</td><td><code>discord</code> et <code>listenbrainz</code> uniquement</td></tr>
+                <tr><td>Manifeste de plugin</td><td>Aucun : les métadonnées sont compilées dans <code>PluginV1</code></td></tr>
+                <tr><td>Tests du chargeur / de l’ABI</td><td>Aucun</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout callout--warn">
+            <p class="callout__title">Le workspace ne se compile pas tel quel</p>
+            <p>
+              <code>ember-sdk/Cargo.toml</code> liste <code>plugins/hello</code> et
+              <code>plugins/remote</code>, absents de l’arborescence actuelle. Cargo échoue sur un
+              membre introuvable. Retirez ces entrées ou restaurez les dossiers avant de compiler.
+              Le README du SDK et l’ancienne documentation mentionnent quatre plugins livrés ; le
+              code présent n’en contient que deux.
+            </p>
+          </div>
+
+          <h2 id="scan">Scan et installation</h2>
+          <p>
+            L’hôte scanne exactement deux dossiers, <strong>une seule fois au démarrage</strong>,
+            dans cet ordre :
+          </p>
+          <ol>
+            <li><code>&lt;dossier de l'exécutable&gt;\plugins</code> — prioritaire ;</li>
+            <li><code>%APPDATA%\Floral Player\plugins</code>.</li>
+          </ol>
+
+          <pre class="diagram" data-no-copy>DÉMARRAGE
+  Host::new()
+    rotate_log()                 supprime plugins.log si &gt; 1 000 000 octets
+    lecture de ember-slint.json  section plugins uniquement
+    builtin()                    Paroles, Visualiseurs
+    scan &lt;exe&gt;\plugins           DllPlugin::load pour chaque *.dll (trié)
+    scan %APPDATA%\Floral Player\plugins
+    doublons d'id                ignorés, premier chargé gagnant
+    calcul de enabled            plugins.&lt;id&gt;.enabled, sinon FLAG_DEFAULT_ON
+    EMBER_PLUGINS_OFF            force false en mémoire</pre>
+
+          <div class="table-wrap">
+            <table>
+              <caption>Dossier correct selon le contexte</caption>
+              <thead><tr><th scope="col">Contexte</th><th scope="col">Dossier scanné</th></tr></thead>
+              <tbody>
+                <tr><td>Binaire distribué, exe dans <code>Ember Player\</code></td><td><code>Ember Player\plugins\</code></td></tr>
+                <tr><td><code>cargo run</code> ou binaire debug</td><td><code>Ember Player\target\debug\plugins\</code></td></tr>
+                <tr><td><code>cargo build --release</code></td><td><code>Ember Player\target\release\plugins\</code></td></tr>
+                <tr><td>Toujours, indépendamment de l’exe</td><td><code>%APPDATA%\Floral Player\plugins\</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Le dossier de données est créé par l’hôte, mais pas son sous-dossier <code>plugins</code> :</p>
+
+          <pre data-lang="powershell"><code>New-Item -ItemType Directory -Force "$env:APPDATA\Floral Player\plugins" | Out-Null
+Copy-Item ".\mon_plugin.dll" "$env:APPDATA\Floral Player\plugins\"</code></pre>
+
+          <p>
+            Tout fichier <code>*.dll</code> est examiné, sans scan récursif. Le nom du fichier est
+            libre. L’identité vient du champ <code>id</code> de la table. Un identifiant déjà chargé
+            — y compris un builtin comme <code>lyrics</code> — fait ignorer l’entrée suivante et
+            écrire une ligne dans le journal.
+          </p>
+
+          <div class="callout callout--danger">
+            <p class="callout__title">build.ps1 copie au mauvais endroit</p>
+            <p>
+              <code>ember-sdk/build.ps1</code> utilise <code>%APPDATA%\Ember Player\plugins</code>
+              ou <code>Ember Player\plugins</code>. Aucun des deux n’est scanné : l’hôte utilise
+              <code>Floral Player</code> et le dossier de l’exécutable, pas celui du crate.
+              Copiez manuellement vers l’un des dossiers réels ci-dessus.
+            </p>
+          </div>
+
+          <h2 id="cycle">Cycle de vie</h2>
+          <pre class="diagram" data-no-copy>ACTIVATION
+  create()                     instance opaque
+  init()                       0 = OK, 1 = refus, 2 = panique
+
+EN COURS D'EXÉCUTION (fil UI)
+  tick(snapshot)               ~5 Hz, même à l'arrêt
+  event(json)                  track_started, played, paused, resumed, stopped
+  ui_command(json)             réservé à discord et listenbrainz
+
+DÉSACTIVATION
+  shutdown()                   si init a réussi
+  destroy()                    l'instance est libérée
+                               PAS de FreeLibrary : la DLL reste chargée
+
+FERMETURE
+  shutdown() de tous les plugins actifs
+  save_settings()
+  drop de l'hôte → FreeLibrary</pre>
+
+          <p>
+            L’activation à chaud et le démarrage suivent le même ordre, mais l’échec n’est pas
+            traité de la même façon :
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Moment</th><th scope="col">Si <code>init</code> échoue</th></tr></thead>
+              <tbody>
+                <tr><td>Démarrage (<code>boot</code>)</td><td>Le plugin passe à <code>enabled = false</code> en mémoire, un toast est affiché, rien n’est persisté immédiatement.</td></tr>
+                <tr><td>Activation par l’utilisateur</td><td>Le plugin repasse à <code>false</code>, l’état est persisté et le toast annonce l’échec.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="dependances">Dépendances</h3>
+          <p>
+            <code>deps</code> contient des identifiants séparés par des virgules. <code>deps_ok</code>
+            vérifie seulement que chaque dépendance est activée. Les plugins sont initialisés dans
+            l’ordre alphabétique de leur <code>id</code>, pas dans l’ordre de déclaration ni dans un
+            ordre topologique.
+          </p>
+          <ul>
+            <li>Aucune détection de cycle.</li>
+            <li>Une dépendance à soi-même est satisfaite.</li>
+            <li>Au démarrage, une dépendance absente ou désactivée fait ignorer le plugin <strong>silencieusement</strong> : pas de toast, pas d’<code>init</code>, pas de persistance.</li>
+            <li>Désactiver une dépendance ne désactive pas les dépendants.</li>
+            <li>À l’activation à chaud, l’échec est visible : <code>dépendances inactives</code>.</li>
+          </ul>
+
+          <h2 id="fils">Fils d’exécution</h2>
+          <p>
+            Tous les appels hôte → plugin se font sur le <strong>fil de l’interface</strong> :
+          </p>
+          <ul>
+            <li><code>tick</code> est appelé par un timer Slint de 200 ms ;</li>
+            <li>les bascules viennent des callbacks Slint, donc du fil UI ;</li>
+            <li><code>shutdown</code> final est appelé après <code>ui.run()</code>, sur le fil principal.</li>
+          </ul>
+
+          <div class="callout callout--danger">
+            <p class="callout__title">Ne bloquez jamais, ne rappelez pas Host depuis un fil</p>
+            <p>
+              Il n’existe ni thread de plugin côté hôte, ni pool, ni timeout, ni file de travaux.
+              Une boucle infinie ou un appel réseau bloquant dans <code>tick</code> fige
+              l’interface. Le pointeur <code>Host</code> n’est pas <code>Send</code> : un fil créé
+              par le plugin doit renvoyer ses résultats par un canal, et c’est <code>tick</code>
+              qui vide ce canal.
+            </p>
+          </div>
+
+          <pre data-lang="rust"><code>use std::sync::mpsc::{channel, Receiver, Sender};
+
+struct MonPlugin {
+    tx: Option&lt;Sender&lt;String&gt;&gt;,
+    rx: Option&lt;Receiver&lt;String&gt;&gt;,
+}
+
+// init   : (tx, rx) = channel(); self.tx = Some(tx); self.rx = Some(rx);
+// event  : self.tx.clone().unwrap().send("résultat".into());
+// tick   : while let Ok(msg) = self.rx.as_ref().unwrap().try_recv() { host.toast(&amp;msg); }
+// shutdown: self.tx = None; self.rx = None;</code></pre>
+
+          <p>
+            Le pont de l’hôte est protégé par un <code>Mutex</code>, mais l’ordre des actions n’est
+            plus garanti hors du fil UI. La règle pratique reste : ne déplacez que des données
+            pures ou un <code>Sender</code>, jamais <code>Host</code>.
+          </p>
+
+          <h3 id="paniques">Paniques et plantages</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Situation</th><th scope="col">Comportement</th></tr></thead>
+              <tbody>
+                <tr><td>Panique dans <code>create</code></td><td><code>catch_unwind</code> → <code>create</code> renvoie null → « création de l’instance impossible ».</td></tr>
+                <tr><td>Panique dans <code>init</code></td><td>Code 2 → « le plugin a paniqué à l’initialisation », plugin désactivé.</td></tr>
+                <tr><td><code>Err</code> dans <code>init</code></td><td>Code 1 → « initialisation refusée ». Le message est perdu.</td></tr>
+                <tr><td>Panique dans <code>tick</code>, <code>event</code>, <code>shutdown</code>, <code>ui_command</code></td><td>Avalée par <code>catch_unwind</code>, sans entrée dans le journal. L’hôte continue.</td></tr>
+                <tr><td><code>panic = "abort"</code></td><td><code>catch_unwind</code> inopérant : le processus est tué.</td></tr>
+                <tr><td>Segfault, <code>abort</code>, pile, <code>ExitProcess</code></td><td>L’application meurt sans message de l’hôte.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="reglages">Persistance et réglages</h2>
+          <p>
+            Tous les réglages sont dans un seul fichier :
+            <span class="path">%APPDATA%\Floral Player\ember-slint.json</span>. Chaque plugin
+            possède un objet <code>plugins.&lt;id&gt;</code> :
+          </p>
+
+          <pre data-lang="json"><code>{
+  "plugins": {
+    "hello": { "enabled": true, "runs": 3 },
+    "discord": { "enabled": false },
+    "mon-plugin": { "enabled": true, "runs": 1 }
+  }
+}</code></pre>
+
+          <ul>
+            <li>À chaque appel, l’hôte clone l’objet du plugin, exécute la méthode, récupère l’objet modifié et ses actions. Une DLL ne voit jamais les réglages d’un autre plugin.</li>
+            <li><code>set_setting</code> est visible immédiatement dans le même appel, mais n’est écrit sur le disque qu’au prochain <code>save_settings</code>.</li>
+            <li><code>save_settings</code> est appelé lors des bascules, de la fermeture et de nombreux réglages d’interface. Il n’y a pas d’écriture périodique dédiée aux plugins.</li>
+            <li>Un arrêt brutal peut perdre les dernières valeurs. Une écriture disque non atomique peut laisser un JSON tronqué en cas de crash.</li>
+            <li>Le fichier contient aussi <code>did</code> (Discord), <code>lbt</code> (ListenBrainz) et <code>slp</code> (Soulseek) en clair, sans DPAPI ni keychain.</li>
+          </ul>
+
+          <h3 id="environnement">Variables d’environnement</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Variable</th><th scope="col">Effet</th></tr></thead>
+              <tbody>
+                <tr><td><code>EMBER_PLUGINS_OFF=id1,id2</code></td><td>Force <code>enabled=false</code> en mémoire et bloque toute écriture de réglages.</td></tr>
+                <tr><td><code>EMBER_PLUGIN_TOGGLE=id:off</code></td><td>400 ms après le lancement, bascule le plugin. <code>:on</code>, <code>:1</code>, <code>:true</code> pour activer. Sans <code>:</code> → off.</td></tr>
+                <tr><td><code>EMBER_NO_SAVE</code></td><td>Présence suffit : <code>save_settings</code> ne fait rien.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="journal">Journal</h2>
+          <p>
+            Fichier : <span class="path">%APPDATA%\Floral Player\plugins.log</span>. Format :
+          </p>
+          <pre data-lang="text"><code>[&lt;unix&gt;] &lt;niveau&gt; [&lt;id&gt;] &lt;texte&gt;</code></pre>
+          <p>Exemple :</p>
+          <pre data-lang="text"><code>[1761571200] info   [hello] hello : init
+[1761571205] debug  [hôte] panneau « browser » : {"id":"browser","lines":["…"]}
+[1761571210] erreur [hôte] C:\…\mauvais.dll : symbole ember_plugin_v1 absent</code></pre>
+
+          <div class="table-wrap">
+            <table class="table--compact">
+              <thead><tr><th scope="col">Niveau</th><th scope="col">Tag</th><th scope="col">Usage</th></tr></thead>
+              <tbody>
+                <tr><td><code>0</code></td><td><code>info</code></td><td>Cycle de vie, informations utilisateur.</td></tr>
+                <tr><td><code>1</code></td><td><code>debug</code></td><td>Traces fines, panneaux, commandes inconnues.</td></tr>
+                <tr><td><code>2</code></td><td><code>avert</code></td><td>Avertissement.</td></tr>
+                <tr><td>autre</td><td><code>erreur</code></td><td>Erreur.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Le fichier est ouvert en ajout à chaque ligne. Au démarrage, <code>rotate_log</code>
+            <strong>supprime</strong> le fichier s’il dépasse 1 000 000 octets : pas d’archivage.
+            Les paniques dans <code>tick</code>/<code>event</code>, les messages d’<code>Err</code>
+            d’initialisation, les JSON invalides et les erreurs d’écriture de réglages ne sont pas
+            journalisés.
+          </p>
+
+          <h2 id="erreurs">Erreurs de chargement</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Message</th><th scope="col">Cause probable</th><th scope="col">Correctif</th></tr></thead>
+              <tbody>
+                <tr><td><code>chargement impossible (…)</code></td><td>Architecture incompatible, dépendance native absente, accès refusé, fichier bloqué.</td><td>Compiler en x64, vérifier les dépendances et les droits.</td></tr>
+                <tr><td><code>symbole ember_plugin_v1 absent</code></td><td>Pas d’export <code>#[no_mangle]</code>, mauvaise crate, DLL étrangère.</td><td>Utiliser <code>declare_plugin!</code> ou exporter la fonction.</td></tr>
+                <tr><td><code>table de plugins vide</code></td><td><code>ember_plugin_v1</code> renvoie null.</td><td>Fournir une table statique non nulle.</td></tr>
+                <tr><td><code>ABI n alors que l'hôte attend 1</code></td><td>DLL compilée avec un autre contrat.</td><td>Recompiler avec l’<code>ember-plugin-api</code> de l’hôte.</td></tr>
+                <tr><td><code>identifiant vide</code></td><td><code>id</code> vide ou uniquement des espaces.</td><td>Fournir un identifiant stable, non vide.</td></tr>
+                <tr><td><code>point d'entrée create absent</code></td><td>Table écrite à la main sans <code>create</code>.</td><td>Utiliser la macro.</td></tr>
+                <tr><td><code>création de l'instance impossible</code></td><td><code>create</code> a renvoyé null : panique ou allocation.</td><td>Vérifier <code>Default</code> et le constructeur.</td></tr>
+                <tr><td><code>le plugin a paniqué à l'initialisation</code></td><td><code>init</code> a paniqué.</td><td>Journaliser avant la panique, corriger.</td></tr>
+                <tr><td><code>initialisation refusée</code></td><td><code>init</code> a renvoyé <code>Err</code>.</td><td>Journaliser le détail avec <code>host.log(2, …)</code> avant <code>Err</code>.</td></tr>
+                <tr><td><code>dépendances inactives</code></td><td>Activation à chaud avec une dépendance désactivée.</td><td>Activer la dépendance d’abord.</td></tr>
+                <tr><td><code>… ignoré : le plugin « id » est déjà chargé</code></td><td>Doublon DLL/DLL ou DLL/builtin.</td><td>Changer l’<code>id</code> ou retirer l’ancien fichier.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Ces erreurs sont écrites dans <code>plugins.log</code> et comptées dans le toast de
+            démarrage : « n plugin(s) ignoré(s) — voir plugins.log ».
+          </p>
+
+          <h2 id="confiance">Modèle de confiance</h2>
+          <p>
+            Une DLL est chargée par <code>LoadLibraryW</code> dans le processus de l’hôte. Il
+            n’existe :
+          </p>
+          <ul>
+            <li>aucun bac à sable, aucun processus séparé ;</li>
+            <li>aucune signature ni vérification d’éditeur ;</li>
+            <li>aucun manifeste de permissions ;</li>
+            <li>aucune limite d’accès aux fichiers, au réseau, au registre ou aux API Win32 ;</li>
+            <li>aucun contrôle de provenance.</li>
+          </ul>
+
+          <div class="split">
+            <div class="note-box">
+              <h3>Ce que l’hôte protège</h3>
+              <ul class="tick-list">
+                <li><code>catch_unwind</code> autour des méthodes du plugin et des callbacks hôte.</li>
+                <li>Vérification des pointeurs nuls.</li>
+                <li><code>CString::new</code> avant chaque envoi : un NUL fait ignorer l’appel.</li>
+                <li><code>Mutex</code> sur le pont JSON.</li>
+                <li>Vérification stricte de <code>abi_version</code>.</li>
+              </ul>
+            </div>
+            <div class="note-box">
+              <h3>Ce qui reste possible</h3>
+              <ul class="warn-list">
+                <li>Lire les réglages, les jetons et tous les fichiers accessibles au compte.</li>
+                <li>Ouvrir des sockets et envoyer des données.</li>
+                <li>Figer l’interface par une boucle ou un appel bloquant.</li>
+                <li>Faire planter le processus par un défaut natif.</li>
+                <li>Écrire dans <code>ember-slint.json</code> ou corrompre des données.</li>
+              </ul>
+            </div>
+          </div>
+
+          <p>
+            La DLL doit aussi avoir la même architecture que l’hôte. Aucun contrôle n’est fait :
+            une DLL x86 dans un hôte x64 échoue dans <code>LoadLibraryW</code> avec l’erreur
+            système 193, présentée comme « chargement impossible ». Les dépendances natives de la
+            DLL ne sont pas copiées et aucun <code>AddDllDirectory</code> n’est appelé.
+          </p>
+
+          <h2 id="mise-a-jour">Remplacer, retirer, réinitialiser</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Opération</th><th scope="col">Procédure</th></tr></thead>
+              <tbody>
+                <tr><td>Mettre à jour</td><td>Fermer FloralPlayer, remplacer la DLL, relancer. Pas de rechargement à chaud ; la DLL reste verrouillée jusqu’à la fin du processus.</td></tr>
+                <tr><td>Retirer</td><td>Fermer l’application, supprimer la DLL. L’entrée <code>plugins.&lt;id&gt;</code> reste dans le JSON, sans effet.</td></tr>
+                <tr><td>Réinitialiser</td><td>Fermer, supprimer l’objet <code>plugins.&lt;id&gt;</code> (ou le fichier entier), relancer.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout callout--todo">
+            <p class="callout__title">À compléter</p>
+            <ul>
+              <li>Aucun manifeste, mécanisme d’installation ou désinstallation propre n’existe pour les plugins.</li>
+              <li>Aucune signature de code ni empreinte publiée pour les DLL.</li>
+              <li>Aucun test du chargeur, du pont ou du cycle de vie.</li>
+              <li>Les dossiers <code>hello</code> et <code>remote</code> sont absents alors qu’ils sont déclarés dans le workspace.</li>
+              <li>La politique de compatibilité et de support de l’ABI v1 n’est pas écrite.</li>
+            </ul>
+          </div>
+
+          <div class="button-row">
+            <a class="button" href="plugin-api.html">Référence de l’API</a>
+            <a class="button" href="getting-started.html">Créer un plugin</a>
+          </div>
+
+          <nav class="doc-pager" data-doc-pager aria-label="Pages de documentation"></nav>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+</body>
+</html>

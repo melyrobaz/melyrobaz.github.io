@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Exemples commentés — plugins FloralPlayer</title>
+  <meta name="description" content="Extraits réels des plugins DLL discord et listenbrainz de FloralPlayer : fils, canaux, réseau, événements, tick et tests.">
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/config.js" defer></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/docs.js" defer></script>
+</head>
+<body data-page="docs" data-doc="examples">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="wrap wrap--docs">
+    <div class="docs-layout">
+      <aside class="docs-sidebar" data-docs-sidebar>
+        <noscript>
+          <div class="panel">
+            <h3>Sommaire</h3>
+            <ul>
+              <li><a href="index.html">Sommaire</a></li>
+              <li><a href="getting-started.html">Créer son premier plugin</a></li>
+              <li><a href="plugin-api.html">Référence de l’API</a></li>
+              <li><a href="plugin-structure.html">Structure et cycle de vie</a></li>
+              <li><a href="examples.html">Exemples commentés</a></li>
+              <li><a href="changelog.html">Changelog</a></li>
+            </ul>
+          </div>
+        </noscript>
+      </aside>
+
+      <article class="doc-window">
+        <div class="doc-titlebar">
+          <span class="doc-titlebar__icon" aria-hidden="true">▤</span>
+          <span class="doc-titlebar__text">FloralPlayer — Exemples commentés</span>
+          <span class="window__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
+        </div>
+        <div class="doc-toolbar">
+          <nav class="breadcrumb" data-doc-breadcrumb aria-label="Fil d’Ariane"></nav>
+          <span class="small muted doc-toolbar__note">Code réel · hôte 2.6.0</span>
+        </div>
+
+        <div class="doc-content">
+          <span class="doc-kicker">Ressources</span>
+          <h1 class="doc-title">Exemples commentés</h1>
+          <p class="doc-lede">
+            Deux plugins DLL sont réellement présents dans <code>ember-sdk/plugins</code> :
+            <code>listenbrainz</code> et <code>discord</code>. Les extraits ci-dessous en sont
+            copiés, avec leurs commentaires d’origine. Ils montrent les deux contraintes
+            structurantes de l’ABI v1 : ne jamais bloquer le fil de l’interface et tester le
+            contrat avec du JSON réel.
+          </p>
+
+          <div class="doc-meta">
+            <span class="badge badge--blue">Extraits du dépôt</span>
+            <span class="badge">Rust 2021</span>
+            <span class="badge">cdylib</span>
+            <span class="badge badge--warn">hello et remote absents</span>
+          </div>
+
+          <div class="callout callout--warn">
+            <p class="callout__title">Deux exemples sur quatre sont disponibles</p>
+            <p>
+              Le workspace <code>ember-sdk/Cargo.toml</code> déclare encore
+              <code>plugins/hello</code> et <code>plugins/remote</code>, mais ces dossiers ne sont
+              pas présents dans l’arborescence actuelle. Cette page ne reconstitue pas leur code :
+              elle se limite aux sources vérifiables de <code>discord</code> et
+              <code>listenbrainz</code>. Le plus petit plugin complet est reconstruit dans
+              <a href="getting-started.html">Créer son premier plugin</a>.
+            </p>
+          </div>
+
+          <h2 id="inventaire">Inventaire des exemples</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Dossier</th><th scope="col">Ce qu’il démontre</th><th scope="col">Point d’entrée dans cette page</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>plugins/listenbrainz</code></td>
+                  <td>Événements <code>track_started</code> et <code>played</code>, envoi HTTP dans un fil, jeton reçu par <code>ui_command</code>.</td>
+                  <td><a href="#listenbrainz">ListenBrainz : un événement, un envoi</a></td>
+                </tr>
+                <tr>
+                  <td><code>plugins/discord</code></td>
+                  <td>Canal <code>mpsc</code>, fil de travail, reconnexion, lissage de l’horodatage dans <code>tick</code>.</td>
+                  <td><a href="#discord">Discord : canal et fil de travail</a></td>
+                </tr>
+                <tr>
+                  <td><code>plugins/hello</code></td>
+                  <td>Cycle de vie minimal, réglage persistant, toast. <strong>Source absente.</strong></td>
+                  <td><a href="getting-started.html#code">Guide : code minimal reconstruit</a></td>
+                </tr>
+                <tr>
+                  <td><code>plugins/remote</code></td>
+                  <td>Serveur HTTP local et commandes vers le lecteur. <strong>Source absente.</strong></td>
+                  <td><a href="#absences">Ce que ces exemples ne montrent pas</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Les deux crates sont indépendants, en <code>cdylib</code>, et partagent la même
+            dépendance par chemin vers <code>ember-plugin-api</code>. Le nom de la bibliothèque
+            détermine le nom du fichier <code>.dll</code>, pas l’identité du plugin.
+          </p>
+
+          <pre data-lang="toml"><code># ember-sdk/plugins/listenbrainz/Cargo.toml
+[package]
+name = "listenbrainz-plugin"
+version = "1.0.0"
+edition = "2021"
+description = "Envoi des écoutes à ListenBrainz depuis Ember Player"
+license = "MIT"
+
+[lib]
+name = "listenbrainz_plugin"
+crate-type = ["cdylib"]
+
+[dependencies]
+ember-plugin-api = { path = "../../ember-plugin-api" }
+serde_json = "1"
+ureq = "2"</code></pre>
+
+          <p class="small muted">
+            <code>discord</code> suit exactement la même forme, avec
+            <code>name = "discord-plugin"</code>, <code>name = "discord_plugin"</code> et sans
+            <code>ureq</code> : il parle à Discord par un tube local, pas par HTTP.
+          </p>
+
+          <h2 id="listenbrainz">ListenBrainz : un événement, un envoi</h2>
+          <p>
+            Le plugin ne fait rien dans <code>tick</code>. Il réagit à deux événements :
+            <code>track_started</code> pour « playing now », et <code>played</code> pour une écoute
+            validée par le seuil de l’hôte. Le jeton n’est pas stocké dans
+            <code>plugins.listenbrainz</code> : il reste dans les réglages de premier niveau et
+            arrive par <code>ui_command</code>.
+          </p>
+
+          <h3 id="lb-evenement">Lire l’événement sans bloquer</h3>
+          <pre data-lang="rust"><code>fn event(&amp;mut self, event: &amp;str, host: &amp;Host) {
+    let v: Value = serde_json::from_str(event).unwrap_or(Value::Null);
+    match v["type"].as_str().unwrap_or_default() {
+        "track_started" =&gt; {
+            let meta = Meta::new(
+                v["artist"].as_str().unwrap_or_default(),
+                v["title"].as_str().unwrap_or_default(),
+                v["album"].as_str().unwrap_or_default(),
+            );
+            host.log(1, &amp;format!("listenbrainz : playing now « {} »", meta.title));
+            self.submit(host, meta, None);
+        }
+        "played" =&gt; {
+            let meta = Meta::new(
+                v["artist"].as_str().unwrap_or_default(),
+                v["title"].as_str().unwrap_or_default(),
+                v["album"].as_str().unwrap_or_default(),
+            );
+            let at = v["at"].as_i64().unwrap_or_else(|| {
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_secs() as i64)
+                    .unwrap_or(0)
+            });
+            host.log(1, &amp;format!("listenbrainz : écoute « {} »", meta.title));
+            self.submit(host, meta, Some(at));
+        }
+        _ =&gt; {}
+    }
+}</code></pre>
+
+          <p>
+            Points à retenir : le JSON est parsé avec <code>unwrap_or(Value::Null)</code>, donc un
+            événement inattendu ne panique pas ; les champs absents deviennent des chaînes vides ;
+            et <code>event</code> ne fait aucun appel réseau direct. Il délègue à
+            <code>submit</code>, qui crée un fil.
+          </p>
+
+          <h3 id="lb-envoi">Déléguer le réseau à un fil</h3>
+          <pre data-lang="rust"><code>fn submit(token: &amp;str, meta: Meta, listened_at: Option&lt;i64&gt;) -&gt; bool {
+    let token = token.trim().to_string();
+    if token.is_empty() || meta.title.trim().is_empty() {
+        return false;
+    }
+    let body = payload(&amp;meta, listened_at).to_string();
+    std::thread::Builder::new()
+        .name("ember-listenbrainz".into())
+        .spawn(move || {
+            let agent = ureq::AgentBuilder::new()
+                .timeout_connect(std::time::Duration::from_secs(8))
+                .timeout(std::time::Duration::from_secs(15))
+                .build();
+            let _ = agent
+                .post("https://api.listenbrainz.org/1/submit-listens")
+                .set("Authorization", &amp;format!("Token {token}"))
+                .set("Content-Type", "application/json")
+                .set("User-Agent", "EmberPlayer/2.6.0 (Slint)")
+                .send_string(&amp;body);
+        })
+        .is_ok()
+}</code></pre>
+
+          <div class="callout callout--warn">
+            <p class="callout__title">Ce que le booléen signifie vraiment</p>
+            <p>
+              <code>submit</code> renvoie <code>true</code> si le fil a pu être créé, pas si la
+              requête HTTP a réussi. Le résultat de <code>send_string</code> est ignoré
+              (<code>let _ =</code>) : une erreur réseau, un jeton refusé ou un HTTP 429 ne laisse
+              aucune trace dans <code>plugins.log</code>. C’est un choix « fire and forget »
+              assumé par le plugin, pas un comportement de l’hôte.
+            </p>
+          </div>
+
+          <p>
+            Le fil ne touche jamais au <code>Host</code>. Seuls des types purs
+            (<code>String</code>, <code>Meta</code>, <code>Option&lt;i64&gt;</code>) sont déplacés
+            dans la closure. C’est la seule forme sûre avec l’ABI actuelle : <code>Host</code>
+            n’est pas <code>Send</code> et tous les callbacks hôte → plugin arrivent sur le fil de
+            l’interface.
+          </p>
+
+          <h3 id="lb-jeton">Recevoir le jeton par ui_command</h3>
+          <pre data-lang="rust"><code>fn ui_command(&amp;mut self, json: &amp;str, host: &amp;Host) {
+    let v: Value = serde_json::from_str(json).unwrap_or(Value::Null);
+    if v["type"].as_str() == Some("configure") {
+        let token = v["token"].as_str().unwrap_or_default().trim().to_string();
+        if token != self.token {
+            self.token = token;
+            host.log(
+                0,
+                if self.token.is_empty() {
+                    "listenbrainz : jeton retiré, envoi inactif"
+                } else {
+                    "listenbrainz : jeton configuré"
+                },
+            );
+        }
+    }
+}</code></pre>
+
+          <p>
+            Cette méthode n’est appelée que parce que l’identifiant codé en dur est
+            <code>listenbrainz</code>. Un plugin tiers qui implémente la même méthode ne recevra
+            jamais de <code>configure</code> avec l’hôte 2.6.0. Pour un plugin tiers, la
+            configuration doit passer par <code>host.setting</code> /
+            <code>host.set_setting</code>, ou par un fichier que le plugin lit lui-même.
+          </p>
+
+          <h3 id="lb-declaration">Déclaration et test du format</h3>
+          <p>
+            La macro ne fait que décrire la table <code>PluginV1</code>. Aucun manifeste séparé
+            n’est lu par l’hôte.
+          </p>
+
+          <pre data-lang="rust"><code>ember_plugin_api::declare_plugin!(
+    ListenBrainz,
+    id = "listenbrainz",
+    name = "ListenBrainz",
+    version = "1.0.0",
+    desc = "Envoie « playing now » au démarrage et les écoutes validées au seuil d'écoute.",
+    category = "Intégration",
+    flags = 0,
+    deps = "",
+);</code></pre>
+
+          <p>
+            Le plugin teste la forme du JSON sans lancer l’hôte, ni le réseau, ni Slint. C’est le
+            type de test à conserver dans un plugin tiers : il vérifie le contrat que vous
+            contrôlez, pas les effets de bord.
+          </p>
+
+          <pre data-lang="rust"><code>#[test]
+fn playing_now_shape() {
+    let v = payload(&amp;Meta::new("A", "T", "L"), None);
+    assert_eq!(v["listen_type"], "playing_now");
+    assert!(v["payload"][0].get("listened_at").is_none());
+    assert_eq!(v["payload"][0]["track_metadata"]["artist_name"], "A");
+    assert_eq!(v["payload"][0]["track_metadata"]["track_name"], "T");
+    assert_eq!(v["payload"][0]["track_metadata"]["release_name"], "L");
+}
+
+#[test]
+fn listened_shape() {
+    let v = payload(&amp;Meta::new("A", "T", ""), Some(1_700_000_000));
+    assert_eq!(v["listen_type"], "single");
+    assert_eq!(v["payload"][0]["listened_at"], 1_700_000_000);
+}</code></pre>
+
+          <h2 id="discord">Discord : canal et fil de travail</h2>
+          <p>
+            Discord Rich Presence exige un dialogue IPC local, des reconnexions et une cadence
+            régulière. Le plugin isole tout cela dans un fil nommé <code>ember-discord</code> et
+            ne communique avec lui que par un canal <code>mpsc</code>. Le fil de l’interface ne
+            fait qu’empiler des commandes.
+          </p>
+
+          <h3 id="discord-client">Le canal et la poignée de main</h3>
+          <pre data-lang="rust"><code>#[derive(Debug)]
+enum Command {
+    Set(Option&lt;Activity&gt;),
+    Shutdown,
+}
+
+struct Client {
+    tx: Sender&lt;Command&gt;,
+    current: Arc&lt;Mutex&lt;Option&lt;Activity&gt;&gt;&gt;,
+    /// Vrai dès que Discord a répondu au handshake (READY).
+    connected: Arc&lt;AtomicBool&gt;,
+}
+
+impl Client {
+    fn new(client_id: &amp;str) -&gt; Client {
+        let (tx, rx) = channel();
+        let current = Arc::new(Mutex::new(None));
+        let connected = Arc::new(AtomicBool::new(false));
+        let id = client_id.trim().to_string();
+        let worker_current = current.clone();
+        let worker_connected = connected.clone();
+        std::thread::Builder::new()
+            .name("ember-discord".into())
+            .spawn(move || worker(id, worker_current, worker_connected, rx))
+            .ok();
+        Client {
+            tx,
+            current,
+            connected,
+        }
+    }</code></pre>
+
+          <p>
+            <code>current</code> conserve la dernière activité pour pouvoir la réémettre après une
+            reconnexion ; <code>connected</code> permet à <code>tick</code> de journaliser les
+            transitions sans interroger le fil. Le <code>Drop</code> de <code>Client</code> envoie
+            <code>Command::Shutdown</code>, ce qui provoque un dernier envoi avant la fermeture du
+            tube.
+          </p>
+
+          <h3 id="discord-worker">Boucle de travail et reconnexion</h3>
+          <pre data-lang="rust"><code>loop {
+    while let Ok(cmd) = rx.try_recv() {
+        match cmd {
+            Command::Shutdown =&gt; {
+                flush(&amp;mut pipe, &amp;current, &amp;mut nonce);
+                return;
+            }
+            Command::Set(a) =&gt; {
+                if let Ok(mut cur) = current.lock() {
+                    *cur = a;
+                }
+            }
+        }
+    }
+    if pipe
+        .as_ref()
+        .map(|p| !p.alive.load(Ordering::Relaxed))
+        .unwrap_or(true)
+    {
+        pipe = None;
+        connected.store(false, Ordering::Relaxed);
+    }
+    if pipe.is_none() &amp;&amp; last_attempt.elapsed() &gt;= Duration::from_secs(5) {
+        last_attempt = std::time::Instant::now();
+        if let Some(mut p) = open_pipe() {
+            let hello = json!({ "v": 1, "client_id": id });
+            let _ = p.writer.write_all(&amp;encode_frame(OP_HANDSHAKE, &amp;hello));
+            let _ = p.writer.flush();
+            pipe = Some(p);
+        }
+    }
+    // … envoi de l'activité courante, puis :
+    match rx.recv_timeout(Duration::from_millis(250)) {
+        Ok(Command::Shutdown) =&gt; {
+            flush(&amp;mut pipe, &amp;current, &amp;mut nonce);
+            return;
+        }
+        Err(RecvTimeoutError::Disconnected) =&gt; return,
+        Ok(Command::Set(a)) =&gt; {
+            if let Ok(mut cur) = current.lock() {
+                *cur = a;
+            }
+        }
+        Err(RecvTimeoutError::Timeout) =&gt; {}
+    }
+}</code></pre>
+
+          <p>
+            La boucle tente une reconnexion toutes les cinq secondes, vide le canal sans bloquer
+            (<code>try_recv</code>), puis attend au maximum 250 ms. Aucun appel au <code>Host</code>
+            n’est effectué ici. Le fil ne journalise pas non plus : c’est <code>tick</code>, côté
+            interface, qui observe <code>connected</code> et écrit dans le journal.
+          </p>
+
+          <h3 id="discord-tick">Recaler l’horodatage dans tick</h3>
+          <pre data-lang="rust"><code>fn tick(&amp;mut self, snapshot: &amp;str, host: &amp;Host) {
+    // Journalise les transitions de connexion : sans client Discord, la
+    // présence reste muette et c'est la seule trace exploitable.
+    if let Some(client) = self.client.as_ref() {
+        let now = client.connected.load(Ordering::Relaxed);
+        if now != self.connected {
+            self.connected = now;
+            host.log(
+                if now { 0 } else { 2 },
+                if now {
+                    "discord : connecté, présence active"
+                } else {
+                    "discord : client injoignable, nouvelle tentative"
+                },
+            );
+        }
+    }
+    let v: Value = serde_json::from_str(snapshot).unwrap_or(Value::Null);
+    let playing = v["playing"].as_bool().unwrap_or(false);
+    if !playing {
+        self.clear();
+        return;
+    }
+    let Some(track) = self.track.as_ref() else {
+        self.clear();
+        return;
+    };
+    if track.title.trim().is_empty() {
+        self.clear();
+        return;
+    }
+    let Some(client) = self.client.as_ref() else {
+        return;
+    };
+    let pos = v["pos"].as_f64().unwrap_or(0.0).max(0.0);
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0);
+    let started = now - pos as i64;
+    let changed = self
+        .last_started
+        .map(|last| (last - started).abs() &gt; 2)
+        .unwrap_or(true);
+    if !self.active || changed {
+        let album = if track.album.trim().is_empty() {
+            "Ember Player"
+        } else {
+            track.album.as_str()
+        };
+        client.set_activity(Some(Activity::new(
+            &amp;track.title,
+            &amp;track.artist,
+            album,
+            Some(started),
+        )));
+        self.active = true;
+        self.last_started = Some(started);
+    }
+}</code></pre>
+
+          <p>
+            Le plugin ne réémet pas l’activité à chaque tick : il ne le fait que si la présence
+            n’est pas active ou si l’horodatage dérive de plus de deux secondes. C’est un compromis
+            entre la précision affichée par Discord et le nombre d’écritures dans le tube.
+          </p>
+
+          <h3 id="discord-evenements">Nettoyer sur les événements</h3>
+          <pre data-lang="rust"><code>match v["type"].as_str().unwrap_or_default() {
+    "track_started" =&gt; {
+        self.track = Some(Track {
+            title: v["title"].as_str().unwrap_or_default().to_string(),
+            artist: v["artist"].as_str().unwrap_or_default().to_string(),
+            album: v["album"].as_str().unwrap_or_default().to_string(),
+        });
+        if let Some(t) = self.track.as_ref() {
+            host.log(1, &amp;format!("discord : piste « {} »", t.title));
+        }
+        // Le prochain tick recale l'horodatage sur la position réelle.
+        self.last_started = None;
+    }
+    "paused" =&gt; self.clear(),
+    "resumed" =&gt; self.last_started = None,
+    "seeked" =&gt; self.last_started = None,
+    "stopped" =&gt; {
+        self.track = None;
+        self.clear();
+    }
+    _ =&gt; {}
+}</code></pre>
+
+          <div class="callout callout--warn">
+            <p class="callout__title">La branche seeked est morte</p>
+            <p>
+              L’hôte 2.6.0 ne construit jamais d’événement <code>seeked</code>. La branche existe
+              dans le plugin, mais elle ne sera jamais exécutée tant que l’hôte n’émet pas cet
+              événement. Le recalage après un seek dépend donc, en pratique, de la dérive de
+              l’horodatage détectée dans <code>tick</code>.
+            </p>
+          </div>
+
+          <h3 id="discord-erreurs">Ce que le plugin ignore volontairement</h3>
+          <ul>
+            <li>Les erreurs d’écriture dans le tube ne sont pas journalisées : le fil marque simplement le tube comme mort et retentera.</li>
+            <li>Une réponse READY n’est pas validée : tout cadre IPC reçu marque <code>ready</code>.</li>
+            <li>Le chargement de l’identifiant Discord intégré est codé en dur dans la DLL, pas fourni par l’hôte.</li>
+            <li>Le plugin utilise <code>let … else</code> (Rust 1.65+) alors que le dépôt ne fixe aucune version minimale de Rust.</li>
+          </ul>
+
+          <h2 id="absences">Ce que ces exemples ne montrent pas</h2>
+          <p>
+            Les deux plugins livrés sont volontairement étroits. Ils ne couvrent pas plusieurs
+            capacités que l’ABI expose pourtant, et certaines qu’elle n’expose pas du tout.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Sujet</th><th scope="col">État réel</th><th scope="col">Où lire la suite</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Réglages persistants</td>
+                  <td>Aucun plugin livré n’appelle <code>set_setting</code> ; le compteur du guide est une reconstruction.</td>
+                  <td><a href="getting-started.html#code">Guide → code minimal</a> · <a href="plugin-api.html#hostapi">Host et settings</a></td>
+                </tr>
+                <tr>
+                  <td>Panneau ou interface fournie par la DLL</td>
+                  <td>Impossible : <code>host.panel</code> est journalisé, <code>FLAG_HAS_UI</code> n’est pas lu.</td>
+                  <td><a href="plugin-api.html#panneaux">Panneaux et interface</a></td>
+                </tr>
+                <tr>
+                  <td>Échantillons audio, bibliothèque, file d’attente</td>
+                  <td>Aucune API, ni pour une DLL ni pour un builtin.</td>
+                  <td><a href="plugin-structure.html#capacites">Capacités réelles</a></td>
+                </tr>
+                <tr>
+                  <td><code>ui_command</code> pour un tiers</td>
+                  <td>Réservé aux identifiants <code>discord</code> et <code>listenbrainz</code>.</td>
+                  <td><a href="plugin-api.html#uicommand">Commandes de l’interface</a></td>
+                </tr>
+                <tr>
+                  <td>Persistance d’un jeton ou d’un identifiant</td>
+                  <td>Les deux exemples les gardent hors de <code>plugins.&lt;id&gt;</code>, par choix de conception de l’hôte.</td>
+                  <td><a href="plugin-structure.html#persistance">Persistance et secrets</a></td>
+                </tr>
+                <tr>
+                  <td>Tests d’intégration avec l’hôte</td>
+                  <td>Aucun test automatisé de chargement de DLL dans le dépôt ; les essais restent manuels.</td>
+                  <td><a href="plugin-structure.html#erreurs">Erreurs de chargement</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="pattern-persistance">Patron de persistance recommandé</h3>
+          <p>
+            Ce bloc n’est pas un extrait livré : il applique les seules méthodes réelles de
+            <code>Host</code> à un besoin courant. Il doit être adapté et testé avant diffusion.
+          </p>
+
+          <pre data-lang="rust"><code>fn init(&amp;mut self, host: &amp;Host) -&gt; Result&lt;(), String&gt; {
+    let launches: u64 = host
+        .setting("launches")
+        .and_then(|s| s.trim().parse().ok())
+        .unwrap_or(0)
+        + 1;
+    host.set_setting("launches", &amp;launches.to_string());
+    host.log(0, &amp;format!("mon-plugin : lancement {launches}"));
+    Ok(())
+}</code></pre>
+
+          <p>
+            Rappels : la valeur est lue comme du JSON sérialisé ; <code>set_setting</code> n’écrit
+            pas immédiatement sur le disque ; une chaîne contenant un NUL est silencieusement
+            refusée ; et <code>enabled</code> appartient à l’hôte.
+          </p>
+
+          <h2 id="checklist">Checklist avant de distribuer une DLL</h2>
+          <ol class="steps">
+            <li>
+              <h3>Contract et architecture</h3>
+              <p>
+                <code>abi_version = 1</code>, export <code>ember_plugin_v1</code>, DLL x64 comme
+                l’hôte. Un <code>id</code> stable, unique et non vide. Les métadonnées vivent dans
+                la table compilée, pas dans un fichier annexe.
+              </p>
+            </li>
+            <li>
+              <h3>Non-blocage</h3>
+              <p>
+                Aucun accès réseau, disque lent ou boucle d’attente dans <code>init</code>,
+                <code>tick</code>, <code>event</code> ou <code>shutdown</code>. Le travail long
+                part dans un fil ; le fil ne touche jamais au <code>Host</code>.
+              </p>
+            </li>
+            <li>
+              <h3>Erreurs visibles</h3>
+              <p>
+                Journaliser le détail avant de renvoyer <code>Err</code> depuis
+                <code>init</code> : le texte ne traverse pas la frontière C. Ne pas avaler
+                silencieusement les erreurs réseau sans au moins un compteur ou un log.
+              </p>
+            </li>
+            <li>
+              <h3>Installation et redémarrage</h3>
+              <p>
+                Copier la DLL dans <code>&lt;exe&gt;\plugins</code> ou
+                <code>%APPDATA%\Floral Player\plugins</code>, puis redémarrer : le scan n’a lieu
+                qu’au démarrage. Vérifier <span class="path">%APPDATA%\Floral Player\plugins.log</span>.
+              </p>
+            </li>
+            <li>
+              <h3>Ce que l’hôte ne fera pas</h3>
+              <p>
+                Il ne vérifiera pas <code>PluginV1.version</code>, n’affichera pas de panneau
+                générique, n’enverra pas <code>ui_command</code> à un tiers et n’émet pas
+                <code>seeked</code>. Ne concevez pas l’expérience autour de ces fonctions.
+              </p>
+            </li>
+          </ol>
+
+          <div class="callout callout--danger">
+            <p class="callout__title">Une DLL est du code arbitraire</p>
+            <p>
+              Aucun bac à sable, aucune signature, aucun manifeste de permissions. Une DLL peut
+              lire les réglages, les fichiers et le réseau de l’utilisateur, ou tuer le processus.
+              La seule protection est la provenance du code.
+            </p>
+          </div>
+
+          <div class="callout callout--todo">
+            <p class="callout__title">Points non vérifiables dans l’état actuel</p>
+            <ul>
+              <li>Les sources de <code>hello</code> et <code>remote</code> sont absentes : impossible de citer leur code réel.</li>
+              <li>Aucun exemple livré de panneau, de réglage persistant ou d’interface fournie par une DLL.</li>
+              <li>Aucun test automatisé de chargement ou de mise à jour d’une DLL.</li>
+              <li>Le comportement réseau des exemples n’est couvert par aucun test ; seuls les formats JSON le sont.</li>
+              <li>Aucune politique de signature ou de publication des DLL n’est définie dans le dépôt.</li>
+            </ul>
+          </div>
+
+          <h2 id="suite">Continuer</h2>
+          <div class="split">
+            <div class="note-box">
+              <h3>Revenir au contrat</h3>
+              <p>Structures, callbacks, formats JSON, flags et règles de sûreté.</p>
+              <p><a href="plugin-api.html">Référence de l’API →</a></p>
+            </div>
+            <div class="note-box">
+              <h3>Vérifier les versions</h3>
+              <p>Versions constatées, écarts entre le code et les anciens documents.</p>
+              <p><a href="changelog.html">Changelog →</a></p>
+            </div>
+          </div>
+
+          <nav class="doc-pager" data-doc-pager aria-label="Pages de documentation"></nav>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+</body>
+</html>

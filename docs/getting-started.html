@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Créer son premier plugin — FloralPlayer</title>
+  <meta name="description" content="Guide pas à pas pour créer, compiler et installer une DLL de plugin FloralPlayer avec l’ABI v1.">
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/config.js" defer></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/docs.js" defer></script>
+</head>
+<body data-page="docs" data-doc="getting-started">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="wrap wrap--docs">
+    <div class="docs-layout">
+      <aside class="docs-sidebar" data-docs-sidebar>
+        <noscript>
+          <div class="panel">
+            <h3>Sommaire</h3>
+            <ul>
+              <li><a href="index.html">Sommaire</a></li>
+              <li><a href="getting-started.html">Créer son premier plugin</a></li>
+              <li><a href="plugin-api.html">Référence de l’API</a></li>
+              <li><a href="plugin-structure.html">Structure et cycle de vie</a></li>
+              <li><a href="examples.html">Exemples commentés</a></li>
+              <li><a href="changelog.html">Changelog</a></li>
+            </ul>
+          </div>
+        </noscript>
+      </aside>
+
+      <article class="doc-window">
+        <div class="doc-titlebar">
+          <span class="doc-titlebar__icon" aria-hidden="true">▤</span>
+          <span class="doc-titlebar__text">FloralPlayer — Créer son premier plugin</span>
+          <span class="window__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
+        </div>
+        <div class="doc-toolbar">
+          <nav class="breadcrumb" data-doc-breadcrumb aria-label="Fil d’Ariane"></nav>
+          <span class="small muted doc-toolbar__note">Windows x64 · Rust</span>
+        </div>
+
+        <div class="doc-content">
+          <span class="doc-kicker">Guide de démarrage</span>
+          <h1 class="doc-title">Créer son premier plugin</h1>
+          <p class="doc-lede">
+            Objectif : produire une DLL minimale qui s’active, écrit dans le journal, affiche un
+            toast et compte ses lancements. Tous les appels utilisés ici existent dans
+            <code>ember-plugin-api</code> 0.1.0 et dans l’hôte <span data-version>2.6.0</span>.
+          </p>
+
+          <div class="doc-meta">
+            <span class="badge badge--blue">ABI 1</span>
+            <span class="badge">Rust 2021</span>
+            <span class="badge">cdylib</span>
+            <span class="badge badge--warn">Windows uniquement</span>
+          </div>
+
+          <h2 id="prerequis">1. Prérequis</h2>
+          <ul>
+            <li><strong>Windows x64.</strong> Le chargeur DLL n’existe que sous Windows et la DLL doit avoir la même architecture que l’hôte.</li>
+            <li><strong>Une chaîne Rust stable</strong> capable de produire des <code>cdylib</code>. Le dépôt ne fixe ni <code>rust-toolchain.toml</code> ni <code>rust-version</code>.</li>
+            <li><strong>Le SDK présent dans <code>ember-sdk/</code>.</strong> La crate <code>ember-plugin-api</code> n’est pas publiée sur crates.io dans ce dépôt : elle s’utilise par chemin.</li>
+            <li><strong>FloralPlayer</strong> installé, pour tester la DLL.</li>
+          </ul>
+
+          <div class="callout callout--warn">
+            <p class="callout__title">Le workspace actuel est incomplet</p>
+            <p>
+              <code>ember-sdk/Cargo.toml</code> déclare cinq membres, dont
+              <code>plugins/hello</code> et <code>plugins/remote</code>, mais ces deux dossiers
+              sont absents de l’arborescence actuelle. Cargo refuse alors de charger le workspace.
+              Retirez ces deux entrées de <code>members</code>, ou restaurez les dossiers, avant
+              d’ajouter votre crate.
+            </p>
+          </div>
+
+          <h2 id="creer-crate">2. Créer le crate</h2>
+          <p>Ajoutez un dossier <code>ember-sdk/plugins/mon-plugin/</code> :</p>
+
+          <pre class="diagram" data-no-copy>ember-sdk/
+  Cargo.toml                 · workspace
+  ember-plugin-api/
+  plugins/
+    mon-plugin/
+      Cargo.toml
+      src/
+        lib.rs</pre>
+
+          <p><code>ember-sdk/plugins/mon-plugin/Cargo.toml</code> :</p>
+
+          <pre data-lang="toml"><code>[package]
+name = "mon-plugin"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "mon_plugin"          # produit mon_plugin.dll
+crate-type = ["cdylib"]
+
+[dependencies]
+ember-plugin-api = { path = "../../ember-plugin-api" }
+serde_json = "1"</code></pre>
+
+          <p>
+            Déclarez le membre dans <code>ember-sdk/Cargo.toml</code>. Voici la version corrigée
+            du workspace actuel, sans les dossiers absents :
+          </p>
+
+          <pre data-lang="toml"><code>[workspace]
+resolver = "2"
+members = [
+    "ember-plugin-api",
+    "plugins/discord",
+    "plugins/listenbrainz",
+    "plugins/mon-plugin",
+]
+
+[profile.release]
+opt-level = 2
+lto = "thin"
+strip = true</code></pre>
+
+          <p class="small muted">
+            Si vous restaurez <code>plugins/hello</code> ou <code>plugins/remote</code>, ajoutez-les
+            à nouveau dans <code>members</code>. Le profil de release s’applique à tous les membres.
+            <code>strip = true</code> ne supprime pas l’export <code>ember_plugin_v1</code>.
+          </p>
+
+          <h2 id="code">3. Le code minimal</h2>
+          <p>
+            <code>ember-sdk/plugins/mon-plugin/src/lib.rs</code>. Le type doit implémenter
+            <code>Default</code> : la macro crée l’instance avec <code>Default::default()</code>.
+            Aucun <code>unsafe</code> n’est nécessaire.
+          </p>
+
+          <pre data-lang="rust"><code>//! Plugin d'exemple : journal, réglage persistant, toast.
+
+use ember_plugin_api::{Host, Plugin, FLAG_DEFAULT_ON};
+use serde_json::Value;
+
+#[derive(Default)]
+struct MonPlugin {
+    ticks: u64,
+}
+
+impl Plugin for MonPlugin {
+    fn init(&mut self, host: &Host) -&gt; Result&lt;(), String&gt; {
+        // La valeur vit dans plugins.mon-plugin.runs, au format JSON.
+        let runs: u64 = host
+            .setting("runs")
+            .and_then(|s| s.trim().parse().ok())
+            .unwrap_or(0)
+            + 1;
+        host.set_setting("runs", &amp;runs.to_string());
+
+        host.log(0, &amp;format!("mon-plugin : init ({runs}e lancement)"));
+        host.toast(&amp;format!("Mon plugin est actif ({runs}e lancement)"));
+        Ok(())
+    }
+
+    fn tick(&mut self, snapshot: &amp;str, _host: &amp;Host) {
+        self.ticks += 1;
+
+        // Environ 5 appels par seconde : une lecture tous les 80 ticks.
+        if self.ticks % 80 == 0 {
+            let v: Value = serde_json::from_str(snapshot).unwrap_or(Value::Null);
+            let _ = (
+                v["pos"].as_f64().unwrap_or(0.0),
+                v["dur"].as_f64().unwrap_or(0.0),
+                v["playing"].as_bool().unwrap_or(false),
+            );
+        }
+    }
+
+    fn event(&mut self, event: &amp;str, host: &amp;Host) {
+        let v: Value = serde_json::from_str(event).unwrap_or(Value::Null);
+        match v["type"].as_str().unwrap_or_default() {
+            "track_started" =&gt; {
+                host.log(
+                    0,
+                    &amp;format!(
+                        "mon-plugin : piste « {} — {} »",
+                        v["title"].as_str().unwrap_or("?"),
+                        v["artist"].as_str().unwrap_or("?")
+                    ),
+                );
+            }
+            "paused" =&gt; host.log(0, "mon-plugin : pause"),
+            "resumed" =&gt; host.log(0, "mon-plugin : reprise"),
+            "stopped" =&gt; host.log(0, "mon-plugin : arrêt"),
+            other =&gt; host.log(1, &amp;format!("mon-plugin : événement « {other} »")),
+        }
+    }
+
+    fn shutdown(&mut self, host: &amp;Host) {
+        host.log(0, &amp;format!("mon-plugin : shutdown après {} ticks", self.ticks));
+    }
+}
+
+ember_plugin_api::declare_plugin!(
+    MonPlugin,
+    id = "mon-plugin",
+    name = "Mon plugin",
+    version = "1.0.0",
+    desc = "Démonstration du contrat DLL.",
+    category = "Système",
+    flags = FLAG_DEFAULT_ON,
+    deps = "",
+);</code></pre>
+
+          <p>Contraintes de la macro :</p>
+          <ul>
+            <li><code>id</code>, <code>name</code>, <code>version</code>, <code>desc</code>, <code>category</code> et <code>deps</code> doivent être des <strong>littéraux</strong> (la macro utilise <code>concat!</code>).</li>
+            <li><code>flags</code> doit être une <strong>expression constante</strong>.</li>
+            <li>Le type du plugin doit être <code>Default</code> et <code>'static</code>.</li>
+            <li>La catégorie inconnue, vide ou <code>Système</code> est mappée sur « Système ». Les valeurs reconnues sont <code>Intégration</code>, <code>Interface</code>, <code>Audio</code> et <code>Bibliothèque</code>.</li>
+          </ul>
+
+          <h2 id="compiler">4. Compiler</h2>
+          <p>Depuis la racine du projet :</p>
+
+          <pre data-lang="powershell"><code>cargo build --manifest-path ember-sdk\Cargo.toml --release</code></pre>
+
+          <p>
+            La DLL est produite dans <code>ember-sdk\target\release\mon_plugin.dll</code>.
+            En mode debug, remplacez <code>--release</code> par rien : la sortie va dans
+            <code>ember-sdk\target\debug\</code>.
+          </p>
+
+          <h2 id="installer">5. Installer la DLL</h2>
+          <p>
+            L’hôte scanne exactement deux dossiers, <strong>au démarrage seulement</strong> :
+          </p>
+          <ol>
+            <li><code>&lt;dossier de l'exécutable&gt;\plugins</code> — prioritaire ;</li>
+            <li><code>%APPDATA%\Floral Player\plugins</code>.</li>
+          </ol>
+
+          <p>
+            Le dossier de données est créé par l’hôte, mais pas le sous-dossier
+            <code>plugins</code>. Créez-le et copiez la DLL :
+          </p>
+
+          <pre data-lang="powershell"><code>New-Item -ItemType Directory -Force "$env:APPDATA\Floral Player\plugins" | Out-Null
+Copy-Item "ember-sdk\target\release\mon_plugin.dll" "$env:APPDATA\Floral Player\plugins\"</code></pre>
+
+          <p class="small muted">
+            Tout fichier <code>*.dll</code> est examiné, sans scan récursif. Le nom du fichier est
+            libre et n’influence pas l’identité du plugin, qui vient du champ <code>id</code>.
+          </p>
+
+          <div class="callout callout--danger">
+            <p class="callout__title">Ne vous fiez pas à build.ps1</p>
+            <p>
+              <code>ember-sdk/build.ps1</code> copie vers <code>%APPDATA%\Ember Player\plugins</code>
+              ou vers <code>Ember Player\plugins</code>. Ces deux destinations ne sont
+              <strong>pas</strong> scannées par l’hôte actuel, qui utilise
+              <code>%APPDATA%\Floral Player\plugins</code>. Copiez la DLL manuellement vers l’un des
+              deux dossiers ci-dessus.
+            </p>
+          </div>
+
+          <h2 id="verifier">6. Vérifier</h2>
+          <ol class="steps">
+            <li>
+              <h3>Démarrer FloralPlayer</h3>
+              <p>Avec <code>FLAG_DEFAULT_ON</code>, le plugin est activé au premier lancement et <code>init</code> s’exécute.</p>
+            </li>
+            <li>
+              <h3>Ouvrir Préférences → Plugins</h3>
+              <p>La ligne « Mon plugin » doit apparaître, avec la catégorie « Système ».</p>
+            </li>
+            <li>
+              <h3>Lire le journal</h3>
+              <p>
+                Ouvrez <span class="path">%APPDATA%\Floral Player\plugins.log</span>. Une ligne
+                <code>info [mon-plugin] mon-plugin : init (1e lancement)</code> doit apparaître.
+              </p>
+            </li>
+            <li>
+              <h3>Tester la persistance</h3>
+              <p>
+                Désactivez puis réactivez le plugin : <code>shutdown</code> puis <code>init</code>
+                sont appelés. Fermez proprement l’application, rouvrez-la : le compteur
+                <code>runs</code> doit augmenter au prochain enregistrement des réglages.
+              </p>
+            </li>
+          </ol>
+
+          <h2 id="depannage">7. Dépannage rapide</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Message dans <code>plugins.log</code></th><th scope="col">Cause probable</th><th scope="col">Correctif</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>chargement impossible (…)</code></td><td>Mauvaise architecture, dépendance native absente, fichier bloqué.</td><td>Compiler en x64, vérifier les DLL dépendantes et les droits.</td></tr>
+                <tr><td><code>symbole ember_plugin_v1 absent</code></td><td>La DLL n’exporte pas la fonction d’entrée.</td><td>Utiliser <code>declare_plugin!</code> ou exporter explicitement la fonction.</td></tr>
+                <tr><td><code>ABI n alors que l'hôte attend 1</code></td><td>DLL compilée avec un autre contrat.</td><td>Recompiler avec l’<code>ember-plugin-api</code> de l’hôte.</td></tr>
+                <tr><td><code>identifiant vide</code></td><td><code>id</code> vide ou uniquement des espaces.</td><td>Fournir un identifiant non vide, stable, en minuscules.</td></tr>
+                <tr><td><code>point d'entrée create absent</code></td><td>Table écrite à la main sans <code>create</code>.</td><td>Utiliser la macro, qui fournit tous les pointeurs.</td></tr>
+                <tr><td><code>initialisation refusée</code></td><td><code>init</code> a renvoyé <code>Err</code>.</td><td>Journaliser le détail avec <code>host.log(2, …)</code> avant de renvoyer l’erreur.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            La liste complète des messages et des causes se trouve dans
+            <a href="plugin-structure.html#erreurs">Structure et cycle de vie → Erreurs de chargement</a>.
+          </p>
+
+          <div class="callout callout--todo">
+            <p class="callout__title">Ce guide n’est pas un exemple livré</p>
+            <p>
+              Le dossier <code>ember-sdk/plugins/hello</code> est référencé par le workspace mais
+              absent de l’arborescence actuelle. Le code ci-dessus reconstruit le plus petit plugin
+              utile à partir du contrat réel ; il n’a pas été compilé dans le cadre de cette
+              documentation. Ajoutez un test de chargement avant de le distribuer.
+            </p>
+          </div>
+
+          <h2 id="suite">8. Continuer</h2>
+          <div class="split">
+            <div class="note-box">
+              <h3>Comprendre le contrat</h3>
+              <p>Champs exacts, callbacks, formats JSON, flags et règles de sûreté.</p>
+              <p><a href="plugin-api.html">Référence de l’API →</a></p>
+            </div>
+            <div class="note-box">
+              <h3>Voir du code réel</h3>
+              <p>Extraits de <code>listenbrainz</code> et <code>discord</code>, fils, canaux et réseau.</p>
+              <p><a href="examples.html">Exemples commentés →</a></p>
+            </div>
+          </div>
+
+          <nav class="doc-pager" data-doc-pager aria-label="Pages de documentation"></nav>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+</body>
+</html>

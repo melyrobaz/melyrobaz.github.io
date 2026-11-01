@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Changelog — plugins FloralPlayer</title>
+  <meta name="description" content="Versions constatées de FloralPlayer, de l’ABI v1 et du SDK, journal de la documentation et écarts corrigés par rapport aux anciens documents.">
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/config.js" defer></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/docs.js" defer></script>
+</head>
+<body data-page="docs" data-doc="changelog">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="wrap wrap--docs">
+    <div class="docs-layout">
+      <aside class="docs-sidebar" data-docs-sidebar>
+        <noscript>
+          <div class="panel">
+            <h3>Sommaire</h3>
+            <ul>
+              <li><a href="index.html">Sommaire</a></li>
+              <li><a href="getting-started.html">Créer son premier plugin</a></li>
+              <li><a href="plugin-api.html">Référence de l’API</a></li>
+              <li><a href="plugin-structure.html">Structure et cycle de vie</a></li>
+              <li><a href="examples.html">Exemples commentés</a></li>
+              <li><a href="changelog.html">Changelog</a></li>
+            </ul>
+          </div>
+        </noscript>
+      </aside>
+
+      <article class="doc-window">
+        <div class="doc-titlebar">
+          <span class="doc-titlebar__icon" aria-hidden="true">▤</span>
+          <span class="doc-titlebar__text">FloralPlayer — Changelog</span>
+          <span class="window__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
+        </div>
+        <div class="doc-toolbar">
+          <nav class="breadcrumb" data-doc-breadcrumb aria-label="Fil d’Ariane"></nav>
+          <span class="small muted doc-toolbar__note">Documentation arrêtée au 27/10/2026</span>
+        </div>
+
+        <div class="doc-content">
+          <span class="doc-kicker">Ressources</span>
+          <h1 class="doc-title">Changelog</h1>
+          <p class="doc-lede">
+            Ce journal distingue trois choses : les versions réellement constatées dans le dépôt,
+            l’historique de cette documentation, et les corrections apportées aux affirmations des
+            anciens documents. Le projet n’est pas versionné par Git : la date de rédaction et le
+            contenu des fichiers font foi, pas un numéro de commit.
+          </p>
+
+          <div class="doc-meta">
+            <span class="badge badge--blue">Hôte 2.6.0</span>
+            <span class="badge">ABI 1</span>
+            <span class="badge">SDK 0.1.0</span>
+            <span class="badge badge--warn">Pas d’historique Git</span>
+          </div>
+
+          <h2 id="versions">Versions constatées</h2>
+          <p>
+            Valeurs lues dans les fichiers du projet le 27 octobre 2026. Elles ne proviennent pas
+            d’une page de release ni d’un tag Git.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <caption>État vérifié du contrat et des livrables</caption>
+              <thead>
+                <tr><th scope="col">Élément</th><th scope="col">Valeur</th><th scope="col">Source</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Nom du produit</td>
+                  <td>Floral Player / FloralPlayer</td>
+                  <td><code>Ember Player/Cargo.toml</code>, interface, fichiers de données</td>
+                </tr>
+                <tr>
+                  <td>Version de l’hôte</td>
+                  <td><code>2.6.0</code></td>
+                  <td><code>Ember Player/Cargo.toml</code></td>
+                </tr>
+                <tr>
+                  <td>Version d’ABI</td>
+                  <td><code>1</code></td>
+                  <td><code>ember-plugin-api/src/lib.rs — ABI_VERSION</code></td>
+                </tr>
+                <tr>
+                  <td>Crate de contrat</td>
+                  <td><code>ember-plugin-api</code> 0.1.0, aucune dépendance</td>
+                  <td><code>ember-sdk/ember-plugin-api/Cargo.toml</code></td>
+                </tr>
+                <tr>
+                  <td>Édition Rust</td>
+                  <td><code>2021</code></td>
+                  <td><code>Cargo.toml</code> du SDK et des plugins</td>
+                </tr>
+                <tr>
+                  <td>Plugin <code>discord</code></td>
+                  <td><code>1.0.0</code> dans la table <code>PluginV1</code></td>
+                  <td><code>plugins/discord/src/lib.rs</code> — champ jamais lu par l’hôte</td>
+                </tr>
+                <tr>
+                  <td>Plugin <code>listenbrainz</code></td>
+                  <td><code>1.0.0</code> dans la table <code>PluginV1</code></td>
+                  <td><code>plugins/listenbrainz/src/lib.rs</code> — champ jamais lu par l’hôte</td>
+                </tr>
+                <tr>
+                  <td>Plugins déclarés</td>
+                  <td>5 membres : API, <code>hello</code>, <code>discord</code>, <code>listenbrainz</code>, <code>remote</code></td>
+                  <td><code>ember-sdk/Cargo.toml</code></td>
+                </tr>
+                <tr>
+                  <td>Plugins réellement présents</td>
+                  <td><code>discord</code> et <code>listenbrainz</code></td>
+                  <td>Arborescence <code>ember-sdk/plugins/</code></td>
+                </tr>
+                <tr>
+                  <td>Date de référence du portage</td>
+                  <td>22 octobre 2026</td>
+                  <td><code>Ember Player/PORTAGE.md</code></td>
+                </tr>
+                <tr>
+                  <td>Date de rédaction de cette documentation</td>
+                  <td>27 octobre 2026</td>
+                  <td>Documentation du dépôt</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout callout--warn">
+            <p class="callout__title">Le numéro de version du plugin ne sert à rien à l’hôte</p>
+            <p>
+              <code>PluginV1.version</code> est déclaré et compilé, mais l’hôte ne l’affiche pas, ne
+              le compare pas et ne le journalise pas. Deux DLL du même <code>id</code> avec des
+              versions différentes sont départagées par l’ordre de scan, pas par ce champ. La
+              version affichée dans le site (<span data-version>2.6.0</span>) est celle de
+              l’application, pas celle d’un plugin.
+            </p>
+          </div>
+
+          <h2 id="journal-documentation">Journal de la documentation</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Date</th><th scope="col">Version</th><th scope="col">Contenu</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>27/10/2026</td>
+                  <td>Publication initiale</td>
+                  <td>
+                    Six pages : sommaire, guide de démarrage, référence de l’ABI v1, structure et
+                    cycle de vie, exemples réels, changelog. Vérification par lecture du code de
+                    l’hôte, du SDK et des deux plugins présents.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Il n’existe pas de version antérieure publique de cette documentation. La page
+            <a href="index.html">Sommaire</a> indique le périmètre exact et les sources utilisées.
+          </p>
+
+          <h2 id="reperes">Repères produit</h2>
+          <p>
+            Ces dates proviennent des documents de portage. Elles ne constituent pas un changelog
+            complet de FloralPlayer et ne décrivent pas l’historique de l’ABI.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Date</th><th scope="col">Jalon documenté</th><th scope="col">Source</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>19/10/2026</td>
+                  <td>Lot 0 du portage : corrections P0 sur les onglets de playlists, la vue Single, la file d’attente, les menus, la recherche et la fenêtre.</td>
+                  <td><code>PORTAGE-HISTORIQUE.md</code></td>
+                </tr>
+                <tr>
+                  <td>22/10/2026</td>
+                  <td>État du portage natif : interface, audio, bibliothèque, intégrations, télécommande LAN et installeur en place, hors RYM Local. 39 tests annoncés.</td>
+                  <td><code>PORTAGE.md</code></td>
+                </tr>
+                <tr>
+                  <td>27/10/2026</td>
+                  <td>Documentation des plugins ABI v1 rédigée à partir du code présent.</td>
+                  <td>Ce site</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="ecarts">Écarts corrigés par rapport aux anciens documents</h2>
+          <p>
+            <code>ember-sdk/README.md</code> et <code>DocPlugin.html</code> décrivent une version
+            antérieure ou théorique du système. Le tableau ci-dessous recense les divergences
+            vérifiées dans le code actuel. C’est le code qui fait foi.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Affirmation ancienne</th><th scope="col">Comportement réel en 2.6.0</th><th scope="col">Référence</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Quatre DLL sont livrées : <code>hello</code>, <code>discord</code>, <code>listenbrainz</code>, <code>remote</code>.</td>
+                  <td>Seuls <code>discord</code> et <code>listenbrainz</code> existent. <code>hello</code> et <code>remote</code> sont déclarés dans le workspace mais absents.</td>
+                  <td><code>Cargo.toml</code>, arborescence <code>plugins/</code></td>
+                </tr>
+                <tr>
+                  <td>Installer dans <code>Ember Player\plugins</code> ou <code>%APPDATA%\Ember Player\plugins</code>.</td>
+                  <td>L’hôte scanne <code>&lt;exe&gt;\plugins</code> puis <code>%APPDATA%\Floral Player\plugins</code>.</td>
+                  <td><code>plugins/mod.rs — plugin_dirs</code></td>
+                </tr>
+                <tr>
+                  <td>Journal dans <code>%APPDATA%\Ember Player\plugins.log</code>.</td>
+                  <td>Journal dans <code>%APPDATA%\Floral Player\plugins.log</code>.</td>
+                  <td><code>plugins/dll.rs</code>, <code>store.rs</code></td>
+                </tr>
+                <tr>
+                  <td>L’événement <code>seeked</code> est envoyé au plugin.</td>
+                  <td>Aucun code ne construit <code>Event::Seeked</code> : l’événement n’est jamais émis.</td>
+                  <td><code>plugins/dll.rs — event_json</code></td>
+                </tr>
+                <tr>
+                  <td><code>FLAG_HAS_UI</code> permet à une DLL de fournir une interface.</td>
+                  <td>Le bit est déclaré mais jamais lu. Aucun protocole de panneau n’existe.</td>
+                  <td><code>plugins/dll.rs</code>, <code>main.rs</code></td>
+                </tr>
+                <tr>
+                  <td><code>PluginV1.version</code> identifie la version du plugin.</td>
+                  <td>Jamais lu par l’hôte : ni affiché, ni comparé, ni journalisé.</td>
+                  <td><code>plugins/dll.rs — DllPlugin::load</code></td>
+                </tr>
+                <tr>
+                  <td><code>ui_command</code> est un canal générique hôte → plugin.</td>
+                  <td>Seuls <code>discord</code> et <code>listenbrainz</code> le reçoivent, avec <code>configure</code>.</td>
+                  <td><code>main.rs — configure_network_plugins</code></td>
+                </tr>
+                <tr>
+                  <td><code>host.panel</code> affiche un panneau dans l’interface.</td>
+                  <td>Le JSON est conservé et journalisé, sans rendu.</td>
+                  <td><code>plugins/dll.rs — cb_panel</code></td>
+                </tr>
+                <tr>
+                  <td>Une DLL écrit ses réglages via <code>ctx.settings</code>, persistés automatiquement.</td>
+                  <td><code>ctx</code> est un type de builtin. Une DLL utilise <code>host.setting</code> / <code>set_setting</code>, et l’écriture disque attend le prochain <code>save_settings</code>.</td>
+                  <td><code>plugins/mod.rs</code>, <code>main.rs</code></td>
+                </tr>
+                <tr>
+                  <td>Une DLL expose <code>meta().id</code>.</td>
+                  <td>Le trait DLL n’a pas de méthode <code>meta()</code> : la fiche vient de la table <code>PluginV1</code>.</td>
+                  <td><code>ember-plugin-api/src/lib.rs</code></td>
+                </tr>
+                <tr>
+                  <td>Le gating <code>plug-id</code> est générique.</td>
+                  <td>Cinq propriétés Slint seulement, avec des identifiants codés en dur ; aucun gating automatique pour un tiers.</td>
+                  <td><code>main.rs — sync_plugins</code>, <code>main.slint</code></td>
+                </tr>
+                <tr>
+                  <td>Les actions s’écrivent <code>{"type":"Toast"}</code> et <code>{"type":"UI"}</code>.</td>
+                  <td>Le parseur attend des minuscules : <code>toast</code> et <code>ui</code>. Les variantes capitalisées deviennent des commandes inconnues.</td>
+                  <td><code>plugins/dll.rs — parse_action</code>, <code>main.rs — plugin_command</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="compatibilite">Compatibilité et mise à jour</h2>
+          <ul>
+            <li><strong>ABI stricte.</strong> L’hôte refuse toute valeur différente de <code>1</code> avec le message <code>ABI &lt;n&gt; alors que l'hôte attend 1</code>. Aucune tolérance N−1.</li>
+            <li><strong>Structures <code>#[repr(C)]</code>.</strong> Ajouter, retirer ou réordonner un champ sans changer <code>ABI_VERSION</code> est un comportement indéfini, pas une erreur détectée.</li>
+            <li><strong>Pas de mise à jour automatique.</strong> Une DLL installée doit être remplacée manuellement, application fermée. Le scan n’a lieu qu’au démarrage et Windows verrouille le fichier chargé.</li>
+            <li><strong>Pas de signature ni de bac à sable.</strong> La provenance du fichier est la seule protection réelle.</li>
+            <li><strong>Pas de manifeste.</strong> Les métadonnées sont compilées dans la table ; un fichier annexe n’est jamais lu.</li>
+          </ul>
+
+          <div class="callout callout--todo">
+            <p class="callout__title">Historique et politique non disponibles</p>
+            <ul>
+              <li>Aucun changelog produit complet de FloralPlayer : les versions antérieures à 2.6.0 ne sont pas documentées ici.</li>
+              <li>Aucun historique Git, aucun tag et aucune note de release dans le dépôt : les dates proviennent de documents de portage, pas d’un registre de publication.</li>
+              <li>Aucun journal des versions de l’ABI : on ne sait pas si une ABI v0 a existé, ni ce qu’elle contenait.</li>
+              <li>Aucune politique de dépréciation pour une future ABI v2, ni de date de fin de support de v1.</li>
+              <li>Aucun changelog des plugins <code>discord</code> et <code>listenbrainz</code> au-delà de leur champ <code>version = "1.0.0"</code>, que l’hôte ignore.</li>
+              <li>Le statut futur de <code>seeked</code>, de <code>FLAG_HAS_UI</code> et des panneaux n’est pas défini dans le code.</li>
+            </ul>
+          </div>
+
+          <h2 id="maintenir">Maintenir cette page</h2>
+          <p>
+            Quand l’hôte change de version, mettez à jour <code>js/config.js</code> en premier : le
+            numéro se propage au en-tête, au pied de page et aux badges qui portent
+            <code>data-version</code>. Vérifiez ensuite les valeurs lues dans le code, pas les
+            anciens documents.
+          </p>
+
+          <ol class="steps">
+            <li>
+              <h3>Configurer le site</h3>
+              <p>
+                <code>siteName</code>, <code>version</code>, <code>abiVersion</code>,
+                <code>githubUser</code>, <code>repo</code> et <code>released</code> dans
+                <code>js/config.js</code>.
+              </p>
+            </li>
+            <li>
+              <h3>Vérifier le contrat</h3>
+              <p>
+                <code>ABI_VERSION</code>, la table <code>PluginV1</code>, les callbacks
+                <code>HostApi</code> et la macro <code>declare_plugin!</code> dans
+                <code>ember-plugin-api/src/lib.rs</code>.
+              </p>
+            </li>
+            <li>
+              <h3>Vérifier les plugins livrés</h3>
+              <p>
+                Contenu réel de <code>ember-sdk/plugins/</code>, champs <code>id</code>,
+                <code>version</code>, <code>category</code> et <code>flags</code> de chaque table.
+              </p>
+            </li>
+            <li>
+              <h3>Mettre à jour les écarts</h3>
+              <p>
+                Ajouter une ligne datée dans ce journal et corriger les pages concernées. Ne
+                supprimez pas un écart sans avoir relu le code qui le contredit.
+              </p>
+            </li>
+          </ol>
+
+          <div class="button-row">
+            <a class="button" href="index.html">Retour au sommaire</a>
+            <a class="button" href="examples.html">Voir les exemples réels</a>
+          </div>
+
+          <nav class="doc-pager" data-doc-pager aria-label="Pages de documentation"></nav>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+</body>
+</html>

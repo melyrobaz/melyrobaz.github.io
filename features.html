@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fonctionnalités — FloralPlayer</title>
+  <meta name="description" content="Bibliothèque, formats lossless, traitement audio, thèmes, intégrations Discord, ListenBrainz et Soulseek, télécommande LAN et plugins DLL de FloralPlayer.">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js" defer></script>
+  <script src="js/layout.js" defer></script>
+</head>
+<body data-page="features">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="wrap">
+    <div class="page-head">
+      <div>
+        <span class="eyebrow">Fonctionnalités</span>
+        <h1>Un lecteur complet, sans dépendance au cloud</h1>
+        <p>Bibliothèque, audio, intégrations et personnalisation. Les fonctions ci-dessous décrivent le portage natif <span data-version>2.6.0</span>.</p>
+      </div>
+      <span class="badge badge--blue">Windows 10/11 · x64</span>
+    </div>
+
+    <div class="card-grid" aria-label="Domaines principaux">
+      <article class="card">
+        <div class="card__head"><span class="icon-tile" aria-hidden="true">▤</span><h3>Bibliothèque</h3></div>
+        <p>13 colonnes, recherche structurée, playlists, CUE, vues intelligentes et caches locaux.</p>
+        <p class="card__foot"><a href="#bibliotheque">Voir le détail →</a></p>
+      </article>
+      <article class="card">
+        <div class="card__head"><span class="icon-tile" aria-hidden="true">♫</span><h3>Audio</h3></div>
+        <p>ReplayGain, crossfeed, limiteur, gapless, crossfade et vitesse avec WSOLA.</p>
+        <p class="card__foot"><a href="#audio">Voir le détail →</a></p>
+      </article>
+      <article class="card">
+        <div class="card__head"><span class="icon-tile" aria-hidden="true">⇄</span><h3>Intégrations</h3></div>
+        <p>Discord, ListenBrainz, Soulseek, télécommande LAN et raccourcis globaux.</p>
+        <p class="card__foot"><a href="#integrations">Voir le détail →</a></p>
+      </article>
+    </div>
+
+    <section class="section" aria-labelledby="interface-title">
+      <div class="section-head">
+        <h2 id="interface-title">Interface et lecture</h2>
+        <a class="section-head__link" href="download.html">Télécharger →</a>
+      </div>
+
+      <div class="feature-block">
+        <h2><span class="icon-tile" aria-hidden="true">▣</span> Un poste de travail musical</h2>
+        <p class="feature-block__intro">L’interface reprend les codes du bureau classique : menus, barres d’outils, listes denses et panneaux redimensionnables.</p>
+        <ul class="feature-list">
+          <li>Vues Album et Single, avec 13 colonnes configurables : lecture, numéro, artiste, album, titre, année, genre, débit, durée, type, note, lectures et RYM.</li>
+          <li>Tri, ordre aléatoire, inversion de liste, en-tête de groupe et menu contextuel des pistes.</li>
+          <li>Playlists par onglets, file d’attente, signets et boucle A–B.</li>
+          <li>Paroles <code>.lrc</code> synchronisées et notification à chaque changement de piste.</li>
+          <li>Mini-lecteur, mode focus, plein écran de la forme d’onde et reprise de session.</li>
+          <li>Cinq dispositions : Standard, Compact, Cover immense, Studio et Karaoké. Les dispositions nommées et les séparateurs sont mémorisés.</li>
+          <li>Fenêtre toujours au-dessus, taille et position restaurées au lancement.</li>
+          <li>Glisser-déposer de fichiers ou de dossiers depuis l’Explorateur Windows.</li>
+          <li>Thèmes Floral, Violet, Bleu, Matrix, Clair et Mono, accent personnalisé, accent dérivé de la pochette et inversion claire.</li>
+          <li>Polices Silkscreen et Barlow Condensed embarquées, avec leurs licences OFL.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="bibliotheque-title" id="bibliotheque">
+      <div class="section-head">
+        <h2 id="bibliotheque-title">Bibliothèque et formats</h2>
+        <a class="section-head__link" href="docs/index.html">Documentation →</a>
+      </div>
+
+      <div class="split">
+        <div class="feature-block">
+          <h2>Rechercher et organiser</h2>
+          <ul class="feature-list feature-list--single">
+            <li>Import de la bibliothèque Electron existante depuis <span class="path">%APPDATA%\ember-player</span>.</li>
+            <li>Ajout de dossiers, nouveau scan, surveillance des dossiers et progression.</li>
+            <li>Recherche complète : <code>genre:</code>, <code>year&gt;2010</code>, <code>rating&gt;=4</code>, <code>plays=0</code>, <code>dur&gt;300</code>, guillemets et exclusions.</li>
+            <li>Vues intelligentes « Doublons », « Tags manquants », favoris, récemment écoutés et récemment ajoutés.</li>
+            <li>Feuilles <code>.cue</code> avec pistes virtuelles et enchaînement.</li>
+            <li>Pochettes 640 px pour la piste courante, 300 px pour les listes, cache LRU de 160 entrées.</li>
+            <li>Crêtes et ReplayGain estimés calculés en arrière-plan, cache disque indexé par mtime, taille et nombre de colonnes.</li>
+          </ul>
+        </div>
+
+        <div class="feature-block">
+          <h2>Formats et compatibilité</h2>
+          <ul class="feature-list feature-list--single">
+            <li><strong>FLAC</strong> — décodage natif via Symphonia.</li>
+            <li><strong>MP3</strong> — y compris les fichiers à débit variable.</li>
+            <li><strong>WAV</strong> — PCM non compressé.</li>
+            <li><strong>OGG / Vorbis</strong>.</li>
+            <li><strong>AAC / M4A</strong>.</li>
+            <li><strong>CUE</strong> — pistes virtuelles et lecture gapless dans une image disque.</li>
+            <li>Flux HTTP(S) et radio, avec les limites du seek hors zone déjà reçue.</li>
+            <li>Métadonnées et pochettes lues localement, sans service tiers obligatoire.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="audio-title" id="audio">
+      <div class="section-head">
+        <h2 id="audio-title">Traitement audio</h2>
+        <a class="section-head__link" href="docs/plugin-api.html#limites">Ce que les plugins ne peuvent pas faire →</a>
+      </div>
+
+      <div class="feature-block">
+        <h2>Écoute, sans intermédiaire</h2>
+        <p class="feature-block__intro">Le portage natif utilise rodio et Symphonia. Le traitement est appliqué par le lecteur, pas par une DLL tierce.</p>
+        <ul class="feature-list">
+          <li>ReplayGain piste ou album, avec préampli.</li>
+          <li>Balance, limiteur de crêtes et crossfeed.</li>
+          <li>Downmix mono.</li>
+          <li>Gapless entre les pistes compatibles.</li>
+          <li>Crossfade réel de 0 à 12 secondes sur deux sorties ; désactivé pour les pistes CUE et les flux réseau.</li>
+          <li>Vitesse de 0,5× à 2× avec conservation facultative de la hauteur (WSOLA).</li>
+          <li>Choix du périphérique de sortie audio.</li>
+          <li>Minuteur de sommeil, arrêt après la piste et signets.</li>
+          <li>Volume, sourdine et navigation au clavier.</li>
+        </ul>
+      </div>
+
+      <div class="callout callout--todo">
+        <p class="callout__title">Égaliseur : état à confirmer</p>
+        <p>
+          Une interface d’égaliseur existe dans l’application, mais le code de plugin documenté
+          n’expose aucun accès aux échantillons audio. Cette page ne présente donc pas
+          l’égaliseur comme une fonction garantie. À compléter avec l’état exact du traitement
+          pour la version publiée.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="integrations-title" id="integrations">
+      <div class="section-head">
+        <h2 id="integrations-title">Intégrations</h2>
+        <a class="section-head__link" href="download.html#vie-privee">Vie privée →</a>
+      </div>
+
+      <div class="card-grid">
+        <article class="card">
+          <div class="card__head"><span class="icon-tile" aria-hidden="true">D</span><h3>Discord</h3></div>
+          <p>Présence « écoute » avec titre, artiste, album et temps. Client IPC natif, reconnexion automatique, identifiant d’application configurable.</p>
+          <p class="card__foot">Nécessite Discord ouvert.</p>
+        </article>
+        <article class="card">
+          <div class="card__head"><span class="icon-tile" aria-hidden="true">L</span><h3>ListenBrainz</h3></div>
+          <p>« En écoute maintenant » au démarrage de piste, puis écoute validée après le seuil <code>min(30, durée/2)</code> secondes. Envoi HTTPS non bloquant.</p>
+          <p class="card__foot">Jeton utilisateur requis.</p>
+        </article>
+        <article class="card">
+          <div class="card__head"><span class="icon-tile" aria-hidden="true">S</span><h3>Soulseek</h3></div>
+          <p>Client pair-à-pair natif : connexion, recherche (600 résultats maximum, délai 10 s), tri, filtre, téléchargement, progression et lecture après transfert.</p>
+          <p class="card__foot"><a href="download.html#vie-privee">Téléchargement uniquement, pas de partage →</a></p>
+        </article>
+        <article class="card">
+          <div class="card__head"><span class="icon-tile" aria-hidden="true">R</span><h3>Télécommande LAN</h3></div>
+          <p>Page web responsive avec jeton de session, état, lecture/pause, précédent/suivant/stop, volume et mute. Désactivée par défaut.</p>
+          <p class="card__foot">Port 8765, repli 8766–8774. Trafic local non chiffré.</p>
+        </article>
+        <article class="card">
+          <div class="card__head"><span class="icon-tile" aria-hidden="true">⌘</span><h3>Raccourcis</h3></div>
+          <p>Touches locales fixes et sept actions globales personnalisables : lecture/pause, suivant, précédent, stop, volume +, volume −, mute.</p>
+          <p class="card__foot">Les touches multimédia restent enregistrées globalement.</p>
+        </article>
+        <article class="card">
+          <div class="card__head"><span class="icon-tile" aria-hidden="true">W</span><h3>Windows</h3></div>
+          <p>Instance unique avec IPC locale, ouverture par arguments, associations « Ouvrir avec » pour 20 extensions dans HKCU, icône et métadonnées de version.</p>
+          <p class="card__foot">Installation sans droits administrateur.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="plugins-title" id="plugins">
+      <div class="section-head">
+        <h2 id="plugins-title">Plugins et extension</h2>
+        <a class="section-head__link" href="docs/index.html">Documentation des plugins →</a>
+      </div>
+
+      <div class="split">
+        <div class="feature-block mb-0">
+          <h2>ABI v1, DLL, JSON</h2>
+          <ul class="feature-list feature-list--single">
+            <li>Plugins compilés en <code>cdylib</code> et chargés au démarrage.</li>
+            <li>Export unique <code>ember_plugin_v1</code>, table <code>PluginV1</code> statique.</li>
+            <li>Macro <code>declare_plugin!</code> : pas d’<code>unsafe</code> dans le plugin.</li>
+            <li>Cycle de vie <code>create → init → tick/event → shutdown → destroy</code>.</li>
+            <li>Tick à environ 5 Hz, événements <code>track_started</code>, <code>played</code>, <code>paused</code>, <code>resumed</code>, <code>stopped</code>.</li>
+            <li>Actions vers le lecteur : lecture, pause, seek, volume, sourdine, piste suivante, toast.</li>
+            <li>Réglages persistants par plugin, journal dans <span class="path">%APPDATA%\Floral Player\plugins.log</span>.</li>
+            <li>Plugins intégrés <code>lyrics</code> et <code>visualizers</code> comme drapeaux d’interface.</li>
+          </ul>
+        </div>
+
+        <div class="callout callout--warn m-0">
+          <p class="callout__title">Limites assumées de l’ABI v1</p>
+          <ul>
+            <li>Aucun accès aux échantillons audio, à la bibliothèque ou à la file d’attente.</li>
+            <li>Aucun slot d’interface générique : <code>host.panel</code> est journalisé, pas rendu.</li>
+            <li><code>ui_command</code> n’est envoyé qu’aux plugins intégrés <code>discord</code> et <code>listenbrainz</code>.</li>
+            <li>Aucun bac à sable, aucune signature, aucun manifeste de permissions.</li>
+            <li><code>FLAG_HAS_UI</code> et <code>PluginV1.version</code> ne sont pas lus par l’hôte.</li>
+            <li>Le chargement de la DLL se fait uniquement au démarrage.</li>
+          </ul>
+          <p><a href="docs/plugin-structure.html">Structure, cycle de vie et limites →</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="limites-title" id="limites">
+      <div class="section-head">
+        <h2 id="limites-title">Limites connues</h2>
+        <a class="section-head__link" href="docs/changelog.html">Journal des versions →</a>
+      </div>
+
+      <div class="panel panel--paper">
+        <ul class="limit-list">
+          <li><strong>RYM Local</strong> n’est pas porté. La colonne RYM peut encore afficher des valeurs déjà présentes dans la bibliothèque Electron, sans synchronisation.</li>
+          <li><strong>Cover flow 3D</strong> est rendu en 2D : Slint ne fournit pas la rotation 3D du prototype.</li>
+          <li><strong>CSS personnalisé</strong> remplacé par <code>ember-theme.json</code> et les réglages d’Apparence.</li>
+          <li><strong>Time-stretch</strong> en WSOLA pur Rust, correct sur la voix et les musiques peu transitoires, sans traitement de formants professionnel.</li>
+          <li><strong>Déplacement libre des blocs</strong> de disposition non porté ; les séparateurs et dispositions nommées restent réglables.</li>
+          <li><strong>Retrait d’une piste</strong> de la bibliothèque non proposé ; les dossiers peuvent être retirés ou rescannés.</li>
+          <li><strong>Crossfade</strong> désactivé pour les pistes CUE et les flux réseau.</li>
+          <li><strong>Radio</strong> : les octets restent en mémoire et le seek hors zone déjà reçue échoue.</li>
+          <li><strong>Raccourcis locaux fixes</strong> ; seules les sept actions globales sont éditables.</li>
+          <li><strong>Plugins</strong> : le dossier <code>hello</code> et le dossier <code>remote</code> sont déclarés dans le workspace mais absents de l’arborescence actuelle ; voir <a href="docs/plugin-structure.html#etat-sdk">l’état du SDK</a>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="cta-band">
+      <div>
+        <h2>Essayer FloralPlayer</h2>
+        <p>Windows 10/11 64 bits. Le lecteur, les formats et la bibliothèque fonctionnent hors ligne.</p>
+      </div>
+      <div class="button-row m-0">
+        <a class="button button--primary" data-release-link href="https://github.com/[MON_PSEUDO]/FloralPlayer/releases/latest">Télécharger la <span data-version>2.6.0</span></a>
+        <a class="button" href="download.html">Guide d’installation</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+</body>
+</html>

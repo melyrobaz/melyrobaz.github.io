@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentation des plugins — FloralPlayer</title>
+  <meta name="description" content="Documentation du système de plugins DLL de FloralPlayer 2.6.0 : ABI v1, cycle de vie, API, installation et limites réelles.">
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/config.js" defer></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/docs.js" defer></script>
+</head>
+<body data-page="docs" data-doc="index">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="wrap wrap--docs">
+    <div class="docs-layout">
+      <aside class="docs-sidebar" data-docs-sidebar>
+        <noscript>
+          <div class="panel">
+            <h3>Sommaire</h3>
+            <ul>
+              <li><a href="index.html">Sommaire</a></li>
+              <li><a href="getting-started.html">Créer son premier plugin</a></li>
+              <li><a href="plugin-api.html">Référence de l’API</a></li>
+              <li><a href="plugin-structure.html">Structure et cycle de vie</a></li>
+              <li><a href="examples.html">Exemples commentés</a></li>
+              <li><a href="changelog.html">Changelog</a></li>
+            </ul>
+          </div>
+        </noscript>
+      </aside>
+
+      <article class="doc-window">
+        <div class="doc-titlebar">
+          <span class="doc-titlebar__icon" aria-hidden="true">▤</span>
+          <span class="doc-titlebar__text">FloralPlayer — Documentation des plugins</span>
+          <span class="window__titlebar-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
+        </div>
+        <div class="doc-toolbar">
+          <nav class="breadcrumb" data-doc-breadcrumb aria-label="Fil d’Ariane"></nav>
+          <span class="small muted doc-toolbar__note">ABI v1 · SDK 0.1.0</span>
+        </div>
+
+        <div class="doc-content">
+          <span class="doc-kicker">Documentation développeur</span>
+          <h1 class="doc-title">Écrire un plugin pour FloralPlayer</h1>
+          <p class="doc-lede">
+            Le lecteur charge des DLL qui implémentent un contrat C stable, l’ABI v1.
+            Cette documentation décrit ce contrat tel qu’il est réellement implémenté dans
+            FloralPlayer <span data-version>2.6.0</span> : points d’entrée, données JSON,
+            cycle de vie, persistance, erreurs et limites.
+          </p>
+
+          <div class="doc-meta">
+            <span class="badge badge--blue">Hôte 2.6.0</span>
+            <span class="badge">ABI 1</span>
+            <span class="badge">Crate 0.1.0</span>
+            <span class="badge badge--warn">Windows x64</span>
+            <span class="badge">Vérifié le 27/10/2026</span>
+          </div>
+
+          <div class="callout">
+            <p class="callout__title">Source de vérité</p>
+            <p>
+              Cette documentation a été rédigée en lisant le code du projet, pas en recopiant
+              <code>DocPlugin.html</code> ni <code>ember-sdk/README.md</code>. Quand ces anciens
+              documents contredisent le code, c’est le code qui fait foi.
+              Les écarts vérifiés sont signalés au fil des pages et récapitulés dans le
+              <a href="changelog.html">changelog</a>.
+            </p>
+          </div>
+
+          <h2 id="parcours">Par où commencer</h2>
+          <p>
+            Si vous découvrez le système, suivez cet ordre. Les pages sont également accessibles
+            depuis l’explorateur à gauche.
+          </p>
+
+          <div class="card-grid card-grid--two">
+            <article class="card">
+              <div class="card__head"><span class="icon-tile" aria-hidden="true">1</span><h3>Créer son premier plugin</h3></div>
+              <p>Prérequis, crate <code>cdylib</code>, code minimal, compilation et installation dans le bon dossier.</p>
+              <p class="card__foot"><a href="getting-started.html">Guide de démarrage →</a></p>
+            </article>
+            <article class="card">
+              <div class="card__head"><span class="icon-tile" aria-hidden="true">2</span><h3>Référence de l’API</h3></div>
+              <p>Table <code>PluginV1</code>, callbacks <code>HostApi</code>, trait <code>Plugin</code>, flags, snapshots, événements et actions.</p>
+              <p class="card__foot"><a href="plugin-api.html">Référence ABI v1 →</a></p>
+            </article>
+            <article class="card">
+              <div class="card__head"><span class="icon-tile" aria-hidden="true">3</span><h3>Structure et cycle de vie</h3></div>
+              <p>Scan des DLL, chargement, activation, fils d’exécution, réglages, journal, erreurs et modèle de confiance.</p>
+              <p class="card__foot"><a href="plugin-structure.html">Comprendre le chargement →</a></p>
+            </article>
+            <article class="card">
+              <div class="card__head"><span class="icon-tile" aria-hidden="true">4</span><h3>Exemples commentés</h3></div>
+              <p>Extraits réels des plugins <code>listenbrainz</code> et <code>discord</code>, et patrons pour les appels réseau ou les fils.</p>
+              <p class="card__foot"><a href="examples.html">Lire les exemples →</a></p>
+            </article>
+          </div>
+
+          <h2 id="familles">Deux familles de plugins</h2>
+          <p>
+            FloralPlayer connaît deux mécanismes distincts. Ils partagent l’onglet
+            <strong>Préférences → Plugins</strong> et le même espace de réglages, mais pas le même
+            contrat de programmation.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <caption>Comparaison des deux backends</caption>
+              <thead>
+                <tr><th scope="col">Aspect</th><th scope="col">DLL</th><th scope="col">Builtin</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Nature</td><td>Bibliothèque dynamique chargée au démarrage</td><td>Code Rust compilé dans l’exécutable</td></tr>
+                <tr><td>Contrat</td><td><code>ember_plugin_api::Plugin</code></td><td><code>plugins::Plugin</code> (noyau)</td></tr>
+                <tr><td>Entrées</td><td>JSON UTF-8 en <code>&amp;str</code></td><td>Types Rust : <code>&amp;Event</code>, <code>&amp;mut Ctx</code></td></tr>
+                <tr><td>Sorties</td><td>Callbacks <code>Host</code></td><td><code>Ctx.actions</code></td></tr>
+                <tr><td>Distribution</td><td>Fichier <code>.dll</code></td><td>Recompilation de l’hôte</td></tr>
+                <tr><td>Ajout sans recompiler l’hôte</td><td>Oui</td><td>Non</td></tr>
+                <tr><td>Documenté ici</td><td>Oui, en priorité</td><td>Oui, pour comprendre les intégrations</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Les types <code>Meta</code>, <code>Ctx</code>, <code>Event</code>, <code>Action</code> et
+            <code>Category</code> du noyau <strong>ne sont pas exportés</strong> par le SDK. Une DLL
+            ne peut pas les utiliser. Le trait <code>ember_plugin_api::Plugin</code> n’a pas de
+            méthode <code>meta()</code> : les métadonnées d’une DLL vivent dans la table
+            <code>PluginV1</code>.
+          </p>
+
+          <h2 id="capacites">Ce que l’ABI permet — et ce qu’elle ne permet pas</h2>
+          <div class="split">
+            <div class="note-box">
+              <h3>Disponible</h3>
+              <ul class="tick-list">
+                <li>Lire la position, la durée et l’état lecture/pause à chaque tick.</li>
+                <li>Recevoir les changements de piste et les écoutes validées.</li>
+                <li>Piloter lecture, pause, arrêt, seek, volume, sourdine, piste suivante/précédente.</li>
+                <li>Lire et écrire des réglages persistants propres au plugin.</li>
+                <li>Afficher un toast et écrire dans le journal.</li>
+                <li>Faire du réseau ou lire des fichiers avec les crates du plugin, sans sandbox.</li>
+                <li>Exporter une commande <code>remote-url</code> pour l’interface.</li>
+              </ul>
+            </div>
+            <div class="note-box">
+              <h3>Indisponible</h3>
+              <ul class="warn-list">
+                <li>Accéder aux échantillons audio, à la bibliothèque ou à la file d’attente.</li>
+                <li>Ajouter une interface, un panneau ou un réglage graphique générique.</li>
+                <li>Recevoir des commandes de l’interface en tant que plugin tiers.</li>
+                <li>Compter sur <code>FLAG_HAS_UI</code> ou sur <code>PluginV1.version</code>.</li>
+                <li>Recevoir l’événement <code>seeked</code> (jamais émis).</li>
+                <li>Être rechargé à chaud, remplacé DLL ouverte, ou exécuté hors Windows.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout callout--danger">
+            <p class="callout__title">Aucun bac à sable</p>
+            <p>
+              Une DLL est chargée par <code>LoadLibraryW</code> dans le processus du lecteur.
+              Il n’y a ni signature, ni manifeste de permissions, ni processus séparé. Une DLL
+              peut lire vos réglages et vos fichiers, ouvrir des sockets ou faire planter
+              l’application. La seule protection réelle est de n’installer que du code dont la
+              source est connue.
+            </p>
+          </div>
+
+          <h2 id="sources">Sources vérifiées</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Fichier</th><th scope="col">Ce qu’il contient</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>ember-sdk/ember-plugin-api/src/lib.rs</code></td><td>ABI v1 : <code>HostApi</code>, <code>PluginV1</code>, <code>Host</code>, trait <code>Plugin</code>, macro <code>declare_plugin!</code>, constantes.</td></tr>
+                <tr><td><code>Ember Player/src/plugins/mod.rs</code></td><td>Noyau : catégories, métadonnées, événements, actions, contexte, scan des dossiers.</td></tr>
+                <tr><td><code>Ember Player/src/plugins/dll.rs</code></td><td>Chargeur Windows, pont JSON, callbacks, journal, erreurs.</td></tr>
+                <tr><td><code>Ember Player/src/main.rs</code></td><td>Intégration : tick, bascules, actions, sauvegarde, intégrations réseau.</td></tr>
+                <tr><td><code>ember-sdk/plugins/listenbrainz/src/lib.rs</code></td><td>Exemple réel : HTTP asynchrone sur événements, jeton par <code>ui_command</code>.</td></tr>
+                <tr><td><code>ember-sdk/plugins/discord/src/lib.rs</code></td><td>Exemple réel : fil persistant, canal, <code>Arc&lt;Mutex&gt;</code>, reconnexion IPC.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="etat">État de la documentation</h2>
+          <div class="callout callout--todo">
+            <p class="callout__title">Points ouverts</p>
+            <ul>
+              <li>Aucun manifeste de plugin : les métadonnées sont compilées dans la table <code>PluginV1</code>. Un manifeste séparé n’existe pas.</li>
+              <li>Aucun en-tête C/C++ n’est fourni : l’ABI est utilisable depuis Rust via la crate, ou reconstruite à la main.</li>
+              <li>Aucun test du chargeur, du pont JSON, des callbacks ou du cycle de vie n’existe dans le dépôt.</li>
+              <li>La compatibilité N−1 n’est pas prévue : l’ABI est strictement égale à 1.</li>
+              <li>La licence du SDK, l’URL de publication et la politique de support restent à préciser.</li>
+            </ul>
+          </div>
+
+          <div class="button-row">
+            <a class="button button--primary" href="getting-started.html">Créer un premier plugin</a>
+            <a class="button" href="plugin-api.html">Lire la référence</a>
+            <a class="button" href="../download.html">Télécharger FloralPlayer</a>
+          </div>
+
+          <nav class="doc-pager" data-doc-pager aria-label="Pages de documentation"></nav>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+</body>
+</html>
