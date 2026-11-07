@@ -1,0 +1,7 @@
+{
+  "version": "2.7.0",
+  "sha256": "fe04f22b9e67644e4ae0f15d8f90fa3ff905160e536246406866f21f74d08bf0",
+  "notes": "Palette de commandes (Ctrl+K), gestionnaire de mods, mises à jour automatiques, ReplayGain par sonie, playlists intelligentes, doublons, tags par lot, paroles en ligne, sauvegarde et restauration, file d'attente réordonnable, Discord réparé.",
+  "download": "https://github.com/melyrobaz/melyrobaz.github.io/releases/download/v2.7.0/FloralPlayer-2.7.0-Setup.exe",
+  "page": "https://github.com/melyrobaz/melyrobaz.github.io/releases/tag/v2.7.0"
+}

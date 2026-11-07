@@ -4,9 +4,11 @@
  */
 window.FLORALPLAYER = {
   siteName: "FloralPlayer",
-  version: "2.6.0",
+  version: "2.7.0",
   abiVersion: "1",
   githubUser: "melyrobaz",
   repo: "FloralPlayer",
-  released: "2026-10-22"
+  // Les releases (installeurs) sont publiées dans le dépôt public du site : le dépôt du code est privé.
+  releaseRepo: "melyrobaz.github.io",
+  released: "2026-11-07"
 };

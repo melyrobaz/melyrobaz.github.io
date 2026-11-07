@@ -25,7 +25,8 @@
   var inDocs = /\/docs\//.test(path);
   var base = inDocs ? "../" : "";
   var repoUrl = "https://github.com/" + cfg.githubUser + "/" + cfg.repo;
-  var releaseUrl = repoUrl + "/releases/latest";
+  var releaseRepo = cfg.releaseRepo || cfg.repo;
+  var releaseUrl = "https://github.com/" + cfg.githubUser + "/" + releaseRepo + "/releases/latest";
   var currentPage = document.body.getAttribute("data-page") || "";
 
   function escapeHtml(value) {

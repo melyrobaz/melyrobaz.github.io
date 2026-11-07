@@ -8,7 +8,7 @@
 
   var cfg = Object.assign(
     {
-      version: "2.6.0",
+      version: "2.7.0",
       githubUser: "melyrobaz",
       repo: "FloralPlayer"
     },
@@ -16,7 +16,8 @@
   );
 
   var repoUrl = "https://github.com/" + cfg.githubUser + "/" + cfg.repo;
-  var releaseUrl = repoUrl + "/releases/latest";
+  var releaseRepo = cfg.releaseRepo || cfg.repo;
+  var releaseUrl = "https://github.com/" + cfg.githubUser + "/" + releaseRepo + "/releases/latest";
   var status = document.querySelector("[data-release-status]");
   var retry = document.querySelector("[data-release-retry]");
   var isConfigured = cfg.githubUser && cfg.githubUser.indexOf("[") === -1;
@@ -101,7 +102,7 @@
       if (controller) controller.abort();
     }, 9000);
 
-    fetch("https://api.github.com/repos/" + encodeURIComponent(cfg.githubUser) + "/" + encodeURIComponent(cfg.repo) + "/releases/latest", {
+    fetch("https://api.github.com/repos/" + encodeURIComponent(cfg.githubUser) + "/" + encodeURIComponent(releaseRepo) + "/releases/latest", {
       method: "GET",
       cache: "no-store",
       headers: { Accept: "application/vnd.github+json" },
