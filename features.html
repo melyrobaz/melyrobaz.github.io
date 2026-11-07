@@ -67,7 +67,39 @@
       </div>
     </section>
 
-    <section class="section" aria-labelledby="bibliotheque-title" id="bibliotheque">
+    <section class="section" aria-labelledby="apercu-title" id="apercu">
+      <div class="section-head">
+        <h2 id="apercu-title">Aperçu</h2>
+      </div>
+      <div class="feature-block">
+        <figure class="shot"><div class="shot__canvas"><img src="assets/capture-sombre.png" width="1650" height="1080" alt="Thème sombre : liste des pistes, file d’attente et paroles." loading="lazy" decoding="async"></div><figcaption>Thème sombre.</figcaption></figure>
+        <figure class="shot"><div class="shot__canvas"><img src="assets/capture-clair.png" width="1650" height="1080" alt="Thème clair avec l’accent orange." loading="lazy" decoding="async"></div><figcaption>Thème clair.</figcaption></figure>
+        <figure class="shot"><div class="shot__canvas"><img src="assets/capture-palette.png" width="1650" height="1080" alt="Palette de commandes ouverte avec Ctrl+K." loading="lazy" decoding="async"></div><figcaption>Palette de commandes (Ctrl+K).</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="nouveautes-title" id="nouveautes">
+      <div class="section-head">
+        <h2 id="nouveautes-title">Prochaine version</h2>
+        <a class="section-head__link" href="docs/mods.html">Installer des mods →</a>
+      </div>
+      <div class="feature-block">
+        <ul class="feature-list">
+          <li><strong>Palette de commandes</strong> (<kbd>Ctrl</kbd>+<kbd>K</kbd>) : toutes les actions au clavier.</li>
+          <li><strong>Mods</strong> : installation et retrait de plugins <code>.dll</code> et <code>.rhai</code> sans redémarrer.</li>
+          <li><strong>Mises à jour</strong> : vérification automatique, téléchargement vérifié par SHA-256 et installation après confirmation.</li>
+          <li><strong>ReplayGain</strong> par sonie EBU R128 pour les fichiers sans tag, et analyse de la bibliothèque.</li>
+          <li><strong>Playlists intelligentes</strong> définies par une règle de recherche, modifiable.</li>
+          <li><strong>Doublons</strong> : détection et nettoyage en gardant la meilleure copie.</li>
+          <li><strong>Tags par lot</strong> : numérotation, titre depuis le nom de fichier, majuscules, espaces.</li>
+          <li><strong>Paroles en ligne</strong> (LRCLIB), avec remplacement d’un <code>.lrc</code> non synchronisé.</li>
+          <li><strong>Sauvegarde et restauration</strong> des réglages et playlists.</li>
+          <li><strong>File d’attente</strong> réordonnable par glisser-déposer.</li>
+        </ul>
+      </div>
+    </section>
+
+<section class="section" aria-labelledby="bibliotheque-title" id="bibliotheque">
       <div class="section-head">
         <h2 id="bibliotheque-title">Bibliothèque et formats</h2>
         <a class="section-head__link" href="docs/index.html">Documentation →</a>
@@ -224,11 +256,10 @@
           <li><strong>CSS personnalisé</strong> remplacé par <code>ember-theme.json</code> et les réglages d’Apparence.</li>
           <li><strong>Time-stretch</strong> en WSOLA pur Rust, correct sur la voix et les musiques peu transitoires, sans traitement de formants professionnel.</li>
           <li><strong>Déplacement libre des blocs</strong> de disposition non porté ; les séparateurs et dispositions nommées restent réglables.</li>
-          <li><strong>Retrait d’une piste</strong> de la bibliothèque non proposé ; les dossiers peuvent être retirés ou rescannés.</li>
-          <li><strong>Crossfade</strong> désactivé pour les pistes CUE et les flux réseau.</li>
+                    <li><strong>Crossfade</strong> désactivé pour les pistes CUE et les flux réseau.</li>
           <li><strong>Radio</strong> : les octets restent en mémoire et le seek hors zone déjà reçue échoue.</li>
           <li><strong>Raccourcis locaux fixes</strong> ; seules les sept actions globales sont éditables.</li>
-          <li><strong>Plugins</strong> : le dossier <code>hello</code> et le dossier <code>remote</code> sont déclarés dans le workspace mais absents de l’arborescence actuelle ; voir <a href="docs/plugin-structure.html#etat-sdk">l’état du SDK</a>.</li>
+          <li><strong>Télécommande</strong> : le plugin <code>remote</code> n’a pas de source dans le dépôt actuel ; Discord et ListenBrainz sont livrés en DLL.</li>
         </ul>
       </div>
     </section>

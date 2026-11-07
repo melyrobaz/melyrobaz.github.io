@@ -1,0 +1,7 @@
+{
+  "version": "2.7.0",
+  "sha256": "<empreinte SHA-256 de l'installeur, 64 caractères hexadécimaux>",
+  "notes": "Texte court des nouveautés.",
+  "download": "https://github.com/melyrobaz/melyrobaz.github.io/releases/download/v2.7.0/FloralPlayer-2.7.0-Setup.exe",
+  "page": "https://github.com/melyrobaz/melyrobaz.github.io/releases/tag/v2.7.0"
+}
