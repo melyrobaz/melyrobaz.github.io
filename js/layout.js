@@ -14,7 +14,7 @@
       siteName: "FloralPlayer",
       version: "2.6.0",
       abiVersion: "1",
-      githubUser: "[MON_PSEUDO]",
+      githubUser: "melyrobaz",
       repo: "FloralPlayer",
       released: "2026-10-22"
     },
