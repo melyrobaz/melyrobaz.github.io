@@ -9,7 +9,7 @@
   var cfg = Object.assign(
     {
       version: "2.6.0",
-      githubUser: "[MON_PSEUDO]",
+      githubUser: "melyrobaz",
       repo: "FloralPlayer"
     },
     window.FLORALPLAYER || {}
