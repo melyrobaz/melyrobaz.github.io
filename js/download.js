@@ -46,30 +46,19 @@
   }
 
   function applyRelease(data) {
-    var tag = data.tag_name || data.name || cfg.version;
-    var published = data.published_at || "";
-    var assets = Array.isArray(data.assets) ? data.assets : [];
-    var exe = assets.filter(function (asset) {
-      return /\.exe$/i.test(asset.name || "");
-    })[0];
-
-    if (exe) {
+    // Manifeste du site (update.json) : pas d'API GitHub, donc ni quota ni dépôt privé.
+    var tag = "v" + String(data.version || cfg.version).replace(/^v/i, "");
+    var file = data.download;
+    if (file && file.indexOf("https://github.com/melyrobaz/") === 0) {
       document.querySelectorAll("[data-download-link]").forEach(function (link) {
-        link.setAttribute("href", exe.browser_download_url);
-        link.setAttribute("download", "");
+        link.setAttribute("href", file);
       });
       setStatus(
-        "Dernière version détectée : " + tag + " — publiée le " + formatDate(published) + ". Le bouton télécharge " + exe.name + ".",
+        "Dernière version : " + tag + ". Le bouton télécharge directement " + decodeURIComponent(file.split("/").pop()) + ".",
         "ok"
       );
     } else {
-      document.querySelectorAll("[data-download-link]").forEach(function (link) {
-        link.setAttribute("href", data.html_url || releaseUrl);
-      });
-      setStatus(
-        "Version " + tag + " détectée, mais aucun fichier .exe n’est publié dans ses assets. Le bouton ouvre la page de release.",
-        "warn"
-      );
+      setStatus("Version " + tag + " : lien direct indisponible, le bouton ouvre la page de release.", "warn");
     }
   }
 
@@ -102,10 +91,9 @@
       if (controller) controller.abort();
     }, 9000);
 
-    fetch("https://api.github.com/repos/" + encodeURIComponent(cfg.githubUser) + "/" + encodeURIComponent(releaseRepo) + "/releases/latest", {
+    fetch("update.json", {
       method: "GET",
       cache: "no-store",
-      headers: { Accept: "application/vnd.github+json" },
       signal: controller ? controller.signal : undefined
     })
       .then(function (response) {

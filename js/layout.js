@@ -305,4 +305,23 @@
   } else {
     enhanceCodeBlocks();
   }
+
+  // Boutons « Télécharger » : le lien direct de la dernière version vient du
+  // manifeste update.json (le href écrit dans le HTML sert de repli).
+  function refreshDownloadLinks() {
+    var links = document.querySelectorAll("[data-download-link]");
+    if (!links.length || !window.fetch) return;
+    fetch(base + "update.json", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (m) {
+        if (!m || typeof m.download !== "string" || m.download.indexOf("https://github.com/melyrobaz/") !== 0) return;
+        links.forEach(function (a) { a.setAttribute("href", m.download); });
+      })
+      .catch(function () {});
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", refreshDownloadLinks);
+  } else {
+    refreshDownloadLinks();
+  }
 })();
