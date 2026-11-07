@@ -63,14 +63,12 @@
             <li><strong>FloralPlayer</strong> installé, pour tester la DLL.</li>
           </ul>
 
-          <div class="callout callout--warn">
-            <p class="callout__title">Le workspace actuel est incomplet</p>
+          <div class="callout">
+            <p class="callout__title">Le workspace se compile</p>
             <p>
-              <code>ember-sdk/Cargo.toml</code> déclare cinq membres, dont
-              <code>plugins/hello</code> et <code>plugins/remote</code>, mais ces deux dossiers
-              sont absents de l’arborescence actuelle. Cargo refuse alors de charger le workspace.
-              Retirez ces deux entrées de <code>members</code>, ou restaurez les dossiers, avant
-              d’ajouter votre crate.
+              <code>ember-sdk/Cargo.toml</code> déclare <code>ember-plugin-api</code> et les plugins
+              <code>hello</code>, <code>discord</code> et <code>listenbrainz</code>. Ajoutez simplement
+              votre dossier à <code>members</code>, puis <code>cargo build --release -p mon-plugin</code>.
             </p>
           </div>
 
@@ -102,14 +100,14 @@ ember-plugin-api = { path = "../../ember-plugin-api" }
 serde_json = "1"</code></pre>
 
           <p>
-            Déclarez le membre dans <code>ember-sdk/Cargo.toml</code>. Voici la version corrigée
-            du workspace actuel, sans les dossiers absents :
+            Déclarez le membre dans <code>ember-sdk/Cargo.toml</code>. Exemple de workspace :
           </p>
 
           <pre data-lang="toml"><code>[workspace]
 resolver = "2"
 members = [
     "ember-plugin-api",
+    "plugins/hello",
     "plugins/discord",
     "plugins/listenbrainz",
     "plugins/mon-plugin",
@@ -121,8 +119,7 @@ lto = "thin"
 strip = true</code></pre>
 
           <p class="small muted">
-            Si vous restaurez <code>plugins/hello</code> ou <code>plugins/remote</code>, ajoutez-les
-            à nouveau dans <code>members</code>. Le profil de release s’applique à tous les membres.
+            Le profil de release s’applique à tous les membres.
             <code>strip = true</code> ne supprime pas l’export <code>ember_plugin_v1</code>.
           </p>
 

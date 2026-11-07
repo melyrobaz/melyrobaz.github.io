@@ -9,6 +9,7 @@
   var PAGES = [
     { id: "index", title: "Sommaire", file: "index.html", short: "Vue d'ensemble" },
     { id: "getting-started", title: "Créer son premier plugin", file: "getting-started.html", short: "Guide de démarrage" },
+    { id: "mods", title: "Installer des mods", file: "mods.html", short: "Utilisateurs" },
     { id: "plugin-api", title: "Référence de l'API", file: "plugin-api.html", short: "ABI v1" },
     { id: "plugin-structure", title: "Structure et cycle de vie", file: "plugin-structure.html", short: "DLL, fiche, chargement" },
     { id: "examples", title: "Exemples commentés", file: "examples.html", short: "Code réel" },
@@ -16,7 +17,7 @@
   ];
 
   var GROUPS = [
-    { label: "Démarrer", items: ["index", "getting-started"] },
+    { label: "Démarrer", items: ["index", "mods", "getting-started"] },
     { label: "Référence", items: ["plugin-api", "plugin-structure"] },
     { label: "Ressources", items: ["examples", "changelog"] }
   ];

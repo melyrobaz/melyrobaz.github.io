@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Installer des mods — FloralPlayer</title>
+  <meta name="description" content="Installer, activer, retirer et dépanner les mods (plugins .dll et scripts .rhai) de FloralPlayer.">
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/config.js" defer></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/docs.js" defer></script>
+</head>
+<body data-page="docs" data-doc="mods">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="wrap wrap--docs">
+    <div class="docs-layout">
+      <aside class="docs-sidebar" data-docs-sidebar>
+        <noscript>
+          <div class="panel">
+            <h3>Sommaire</h3>
+            <ul>
+              <li><a href="index.html">Sommaire</a></li>
+              <li><a href="mods.html">Installer des mods</a></li>
+              <li><a href="getting-started.html">Créer son premier plugin</a></li>
+              <li><a href="plugin-api.html">Référence de l’API</a></li>
+              <li><a href="plugin-structure.html">Structure et cycle de vie</a></li>
+              <li><a href="examples.html">Exemples commentés</a></li>
+              <li><a href="changelog.html">Changelog</a></li>
+            </ul>
+          </div>
+        </noscript>
+      </aside>
+
+      <article class="doc-window">
+        <div class="doc-toolbar">
+          <nav class="breadcrumb" data-doc-breadcrumb aria-label="Fil d’Ariane"></nav>
+          <span class="small muted doc-toolbar__note">Windows x64</span>
+        </div>
+
+        <div class="doc-content">
+          <span class="doc-kicker">Pour les utilisateurs</span>
+          <h1 class="doc-title">Installer des mods</h1>
+          <p class="doc-lede">
+            Un mod est un plugin que vous ajoutez à FloralPlayer : une DLL (<code>.dll</code>) ou un
+            script (<code>.rhai</code>). Aucun redémarrage n’est nécessaire.
+          </p>
+
+          <div class="callout callout--warn">
+            <p class="callout__title">N’installez que des mods de confiance</p>
+            <p>
+              Une DLL est du code natif qui s’exécute avec vos droits, comme n’importe quel
+              programme. Les scripts <code>.rhai</code> tournent dans un environnement restreint,
+              mais restent à vérifier avant usage.
+            </p>
+          </div>
+
+          <h2 id="installer">1. Installer</h2>
+          <p>Trois façons, au choix :</p>
+          <ul>
+            <li><strong>Préférences → Plugins → « Installer un mod… »</strong> puis choix du ou des fichiers.</li>
+            <li><strong>Glisser-déposer</strong> le fichier <code>.dll</code> ou <code>.rhai</code> sur la fenêtre.</li>
+            <li><strong>Palette de commandes</strong> (<kbd>Ctrl</kbd>+<kbd>K</kbd>) : « Installer un mod… ».</li>
+          </ul>
+          <p>
+            Le fichier est copié dans <code>%APPDATA%\Floral Player\plugins</code>, puis le dossier est
+            relu : le mod apparaît dans la liste des plugins.
+          </p>
+
+          <h2 id="activer">2. Activer ou désactiver</h2>
+          <p>
+            Chaque mod a un interrupteur dans Préférences → Plugins. Un mod désactivé ne consomme
+            rien : l’instance est détruite à la désactivation. Un mod déjà chargé est rechargé sans
+            redémarrage via « Recharger ».
+          </p>
+
+          <h2 id="retirer">3. Retirer</h2>
+          <p>
+            Le bouton « Supprimer » d’un mod efface son fichier après confirmation. Il ne fonctionne
+            que pour les mods du dossier utilisateur : les plugins livrés avec l’application ne sont
+            jamais supprimés. Vous pouvez aussi supprimer le fichier à la main, puis relire le dossier.
+          </p>
+
+          <h2 id="depanner">4. Dépanner</h2>
+          <ul>
+            <li>
+              <strong>Journal :</strong> menu Outils (ou palette) → « Ouvrir le journal des plugins ».
+              Les erreurs de chargement et celles des plugins y sont écrites
+              (<code>%APPDATA%\Floral Player\plugins.log</code>).
+            </li>
+            <li>
+              <strong>Deux fichiers pour le même plugin :</strong> un plugin est identifié par son
+              <code>id</code>, le premier chargé l’emporte. Le dossier de l’application passe avant
+              le dossier utilisateur.
+            </li>
+            <li>
+              <strong>Désactiver au lancement :</strong> la variable
+              <code>EMBER_PLUGINS_OFF=id1,id2</code> empêche l’activation de plugins précis.
+            </li>
+          </ul>
+
+          <h2 id="discord">Exemple : Discord</h2>
+          <p>
+            Le plugin Discord affiche la piste en cours (titre, artiste, album, durée écoulée, « En
+            pause » le cas échéant) ainsi qu’un bouton vers le projet. Il nécessite l’application
+            Discord ouverte sur le même ordinateur. Si rien n’apparaît, le journal indique
+            « connecté » ou le motif du refus de Discord.
+          </p>
+
+          <p>
+            Créer un mod : <a href="getting-started.html">Créer son premier plugin</a>.
+          </p>
+
+          <nav class="doc-pager" data-doc-pager aria-label="Pages de documentation"></nav>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+</body>
+</html>
