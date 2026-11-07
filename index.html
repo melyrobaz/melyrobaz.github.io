@@ -62,7 +62,7 @@
       <div class="hero__media">
         <figure class="shot">
           <div class="shot__canvas">
-            <img src="assets/capture-sombre.png" width="1650" height="1080" alt="Capture de FloralPlayer : bibliothèque en liste, file d’attente, paroles et contrôles de lecture, thème sombre orange." decoding="async">
+            <img src="assets/capture-sombre.png" width="1650" height="1080" alt="Capture de FloralPlayer : bibliothèque en liste, file d’attente, paroles et contrôles de lecture, thème sombre vert olive." decoding="async">
           </div>
           <figcaption>Bibliothèque, file d’attente et panneau de lecture.</figcaption>
         </figure>
@@ -102,6 +102,42 @@
           <p>Des DLL chargées au démarrage, une table d’entrée en C et des échanges JSON. Le SDK documente le cycle de vie et les limites réelles.</p>
         </li>
       </ul>
+    </section>
+
+    <section class="section" aria-labelledby="plugins-title" id="plugins">
+      <div class="section-head">
+        <h2 id="plugins-title">Installer des plugins</h2>
+        <a class="section-head__link" href="docs/mods.html">Guide complet →</a>
+      </div>
+
+      <ul class="ledger">
+        <li>
+          <h3>1. Récupérer le plugin</h3>
+          <p>Un plugin est un fichier <code>.dll</code> (Rust) ou <code>.rhai</code> (script). Prenez-le auprès d’une source que vous connaissez.</p>
+        </li>
+        <li>
+          <h3>2. L’installer en un geste</h3>
+          <p>Glissez le fichier sur la fenêtre de FloralPlayer, ou ouvrez Préférences → Plugins → « Installer un mod… », ou tapez « Installer un mod » dans la palette (<kbd>Ctrl</kbd>+<kbd>K</kbd>). Aucun redémarrage.</p>
+        </li>
+        <li>
+          <h3>3. L’activer, le régler, le retirer</h3>
+          <p>Chaque plugin a son interrupteur dans Préférences → Plugins. « Recharger » relit un fichier modifié ; « Supprimer » l’efface après confirmation.</p>
+        </li>
+      </ul>
+
+      <div class="panel panel--paper" style="margin-top:14px">
+        <h3>Livrés avec FloralPlayer</h3>
+        <ul class="feature-list">
+          <li><strong>Discord Rich Presence</strong> : piste en cours, « En pause », bouton vers le projet.</li>
+          <li><strong>ListenBrainz</strong> : « playing now » et écoutes validées.</li>
+          <li><strong>Paroles, Visualiseurs, Égaliseur paramétrique</strong> : intégrés, désactivables.</li>
+          <li><strong>Hello Script</strong> : un exemple de script <code>.rhai</code> à copier.</li>
+        </ul>
+        <p class="small muted">
+          Les plugins sont installés dans <code>%APPDATA%\Floral Player\plugins</code>. Un plugin DLL
+          s’exécute avec vos droits : n’en installez que de confiance.
+        </p>
+      </div>
     </section>
 
     <section class="section" aria-labelledby="dev-title">
