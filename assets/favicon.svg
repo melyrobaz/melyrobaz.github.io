@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="FloralPlayer">
+  <defs>
+    <path id="fsP" d="M128 128C76 108 72 30 128 4C184 30 180 108 128 128Z"/>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" rx="56" fill="#1e1f15"/>
+  <g fill="#b4b57a" transform="translate(0 8)">
+    <use href="#fsP"/>
+    <use href="#fsP" transform="rotate(72 128 128)"/>
+    <use href="#fsP" transform="rotate(144 128 128)"/>
+    <use href="#fsP" transform="rotate(216 128 128)"/>
+    <use href="#fsP" transform="rotate(288 128 128)"/>
+  </g>
+  <circle cx="128" cy="136" r="62" fill="#1e1f15"/>
+  <circle cx="128" cy="136" r="50" fill="#f4f4e6"/>
+  <path d="M110 108L158 136L110 164Z" fill="#2c2d1b" stroke="#2c2d1b" stroke-width="10" stroke-linejoin="round"/>
+</svg>

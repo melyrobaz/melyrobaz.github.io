@@ -342,10 +342,6 @@ kbd {
   flex: 0 0 auto;
   width: 28px;
   height: 28px;
-  border: 1px solid #000000;
-  border-radius: 3px;
-  background: #050403;
-  image-rendering: pixelated;
 }
 
 .brand__text {
