@@ -1,7 +1,7 @@
 {
-  "version": "2.7.0",
-  "sha256": "fe04f22b9e67644e4ae0f15d8f90fa3ff905160e536246406866f21f74d08bf0",
-  "notes": "Palette de commandes (Ctrl+K), gestionnaire de mods, mises à jour automatiques, ReplayGain par sonie, playlists intelligentes, doublons, tags par lot, paroles en ligne, sauvegarde et restauration, file d'attente réordonnable, Discord réparé.",
-  "download": "https://github.com/melyrobaz/melyrobaz.github.io/releases/download/v2.7.0/FloralPlayer-2.7.0-Setup.exe",
-  "page": "https://github.com/melyrobaz/melyrobaz.github.io/releases/tag/v2.7.0"
+    "version":  "2.8.0",
+    "sha256":  "8dcbe34c05bb9e605021d276efcec64df8e7d4cceaf96ff72c2cf727877035a2",
+    "notes":  "Chaîne d\u0027effets VST3 et VST2 façon Ableton. Présence Discord avec la pochette affichée dans Floral. Préférences redessinées. Thème vert olive et nouveau logo. Un clic sur l\u0027oscilloscope ou le spectrogramme ne déplace plus la lecture.",
+    "download":  "https://github.com/melyrobaz/melyrobaz.github.io/releases/download/v2.8.0/FloralPlayer-2.8.0-Setup.exe",
+    "page":  "https://github.com/melyrobaz/melyrobaz.github.io/releases/tag/v2.8.0"
 }
